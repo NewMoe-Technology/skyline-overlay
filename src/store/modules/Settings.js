@@ -31,6 +31,7 @@ class Settings {
 
   // settings container display
   showSettings = false;
+  minimalMode = false;
 
   // data
   sortRule = { key: 'dps', value: -1 }; // sort data
@@ -39,6 +40,7 @@ class Settings {
   showTickers = true;
   showHPS = false;
   extendDetail = false;
+  bottomDisp = 'maxhit';
 
   // display
   showRanks = false; // show rank number before id
@@ -88,6 +90,10 @@ class Settings {
     this.showSettings = !this.showSettings;
     saveSettings({ showSettings: this.showSettings });
   }
+  toggleMinimalMode() {
+    this.minimalMode = !this.minimalMode;
+    saveSettings({ minimalMode: this.minimalMode });
+  }
 
   // data
   /**
@@ -112,6 +118,7 @@ class Settings {
   updateShowTickers = getAction('showTickers');
   updateShowHPS = getAction('showHPS');
   updateExtendDetail = getAction('extendDetail');
+  updateBottomDisp = getAction('bottomDisp');
 
   /* display */
   updateShowRanks = getAction('showRanks');

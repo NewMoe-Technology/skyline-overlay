@@ -4,6 +4,7 @@
   "Heal": "治疗",
   "Overheal": "过量",
   "Damage": "伤害",
+  "Deaths": "死亡",
   "Direct": "直击",
   "Critical !": "暴击 !",
   "DC !!!": "直爆 !!!",
@@ -20,6 +21,7 @@
   "Show Tickers": "显示 Tickers",
   "Show HPS": "显示 HPS",
   "Extend Detail": "扩展详情显示",
+  "Bottom Display": "底部显示",
 
   "Display": "显示",
   "Show Ranks": "显示名次",

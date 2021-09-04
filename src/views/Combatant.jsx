@@ -1,5 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
+import cloneDeep from 'lodash/cloneDeep';
 import './Combatant.scss';
 import CombatantGrid from './CombatantGrid';
 import useStore from '@/hooks/useStore';
@@ -8,28 +9,33 @@ const Combatant = observer(() => {
   // get data from store
   const {
     api: { combatant, lb },
-    settings: { sortRule, playerLimit, showLB },
+    settings: { sortRule, playerLimit, showLB, toggleMinimalMode },
   } = useStore();
 
   // parse combatant settings
-  const sortedCombatant = useMemo(() => {
-    const sorted = [...combatant].sort(
-      (a, b) => sortRule.value * (a[sortRule.key] - b[sortRule.key])
-    );
-    const res = [];
-    for (let i = 0; i < playerLimit; i++) {
-      sorted[i] && sorted[i].name && res.push(sorted[i]);
-    }
-    if (showLB && lb && lb.name === 'Limit Break') {
-      res.push(lb);
-    }
-    return res;
-  }, [combatant, lb, playerLimit, showLB, sortRule]);
+  const sortedTemp = cloneDeep(combatant).sort(
+    (a, b) => sortRule.value * (a[sortRule.key] - b[sortRule.key])
+  );
+  const sortedCombatant = [];
+  for (let i = 0; i < playerLimit; i++) {
+    sortedTemp[i] && sortedTemp[i].name && sortedCombatant.push(sortedTemp[i]);
+  }
+  if (showLB && lb && lb.name === 'Limit Break') {
+    sortedCombatant.push(cloneDeep(lb));
+  }
+
+  const handleSwitchMinimalMode = useCallback(
+    (e) => {
+      e.preventDefault();
+      toggleMinimalMode();
+    },
+    [toggleMinimalMode]
+  );
 
   return (
     <>
       {Boolean(combatant) && combatant.length > 0 && (
-        <div className='combatant'>
+        <div className='combatant' onContextMenu={handleSwitchMinimalMode}>
           {sortedCombatant.map((value, index) => (
             <CombatantGrid player={value} index={index} key={value.name} />
           ))}
@@ -38,6 +44,5 @@ const Combatant = observer(() => {
     </>
   );
 });
-Combatant.displayName = 'Combatant';
 
 export default Combatant;
