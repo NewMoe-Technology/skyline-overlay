@@ -4,24 +4,34 @@ import cloneDeep from 'lodash/cloneDeep';
 import './Combatant.scss';
 import CombatantGrid from './CombatantGrid';
 import useStore from '@/hooks/useStore';
+import { fmtMergePet } from '@/utils/formatters';
 
 const Combatant = observer(() => {
   // get data from store
   const {
     api: { combatant, lb },
-    settings: { sortRule, playerLimit, showLB, toggleMinimalMode },
+    settings: { sortRule, playerLimit, showLB, petMergeID, toggleMinimalMode },
   } = useStore();
+  let players = cloneDeep(combatant);
 
-  // parse combatant settings
-  const sortedTemp = cloneDeep(combatant).sort(
-    (a, b) => sortRule.value * (a[sortRule.key] - b[sortRule.key])
-  );
-  const sortedCombatant = [];
-  for (let i = 0; i < playerLimit; i++) {
-    sortedTemp[i] && sortedTemp[i].name && sortedCombatant.push(sortedTemp[i]);
+  // merge pet if enabled
+  if (petMergeID) {
+    players = fmtMergePet(players, petMergeID);
   }
+
+  // sort combatant
+  players.sort((a, b) => sortRule.value * (a[sortRule.key] - b[sortRule.key]));
+
+  // limit combatants
+  const temp = players;
+  players = [];
+  for (let i = 0; i < playerLimit; i++) {
+    temp[i] && temp[i].name && players.push(temp[i]);
+  }
+
+  // add lb if enabled
   if (showLB && lb && lb.name === 'Limit Break') {
-    sortedCombatant.push(cloneDeep(lb));
+    players.push(cloneDeep(lb));
   }
 
   const handleSwitchMinimalMode = useCallback(
@@ -36,8 +46,8 @@ const Combatant = observer(() => {
     <>
       {Boolean(combatant) && combatant.length > 0 && (
         <div className='combatant' onContextMenu={handleSwitchMinimalMode}>
-          {sortedCombatant.map((value, index) => (
-            <CombatantGrid player={value} index={index} key={value.name} />
+          {players.map((player, index) => (
+            <CombatantGrid player={player} index={index} key={player.name} />
           ))}
         </div>
       )}
