@@ -1,59 +1,98 @@
 import { makeAutoObservable } from 'mobx';
-import i18n from '../../i18n';
+import Translation from './Translation';
 import { setLS, getLS } from '../../utils/storage';
+import { xssEscape } from '../../utils/lodash';
+import {
+  LangMapKey,
+  ShortNameMapKey,
+  SortRuleMapKey,
+  ThemeMapKey,
+  DisplayModeMapKey,
+  DisplayContentMapKey,
+  TickerAlignMapKey,
+  TickerMapKey,
+  BottomDispMapKey,
+} from '../../utils/constants';
 
-interface SavedPartialSettings {
+interface PartialSettings {
   [key: string]: unknown;
 }
 
 /**
  * save settings to local storage
  */
-function saveSettings(settings: { [key: string]: unknown }) {
-  const savedSettings = (getLS('settings') || {}) as SavedPartialSettings;
+function saveSettings(settings: PartialSettings) {
+  const savedSettings = (getLS('settings') || {}) as PartialSettings;
   const newSettings = { ...savedSettings, ...settings };
   setLS('settings', newSettings);
 }
 
-/**
- * get a unified function to update value
- */
-function getAction<T>(key: keyof Settings) {
-  return function (payload: T) {
-    // @ts-expect-error incompatible T
-    (this[key] as T) = payload;
-    saveSettings({ [key]: payload });
-  };
+interface SortSettings {
+  key: SortRuleMapKey;
+  rule: -1 | 1;
 }
+interface PartialSortSettings {
+  key?: SortRuleMapKey;
+  rule?: -1 | 1;
+}
+
+interface DispContentSettings {
+  left: DisplayContentMapKey;
+  right: DisplayContentMapKey;
+}
+interface PartialDispContentSettings {
+  left?: DisplayContentMapKey;
+  right?: DisplayContentMapKey;
+}
+
+interface TickerSettings {
+  top: TickerMapKey;
+  bottom: TickerMapKey;
+}
+interface PartialTickerSettings {
+  top?: TickerMapKey;
+  bottom?: TickerMapKey;
+}
+
+interface TickerAlignSettings {
+  top: TickerAlignMapKey;
+  bottom: TickerAlignMapKey;
+}
+interface PartialTickerAlignSettings {
+  top?: TickerAlignMapKey;
+  bottom?: TickerAlignMapKey;
+}
+
+// translation store
+let trans: Translation;
 
 class Settings {
   /** @mobx state */
 
   // settings container display
   showSettings = false;
-  minimalMode = false;
-
-  // data
-  sortRule = { key: 'dps', value: -1 }; // sort data
-  playerLimit = 8; // combatant limit
-  showLB = true;
-  petMergeID = ''; // merge pet data when using global client with cn language patch
-  showHPS = false;
-  extendDetail = false;
-  bottomDisp = 'maxhit';
-
-  // display
-  showRanks = false; // show rank number before id
-  hlYou = true; // highlight 'YOU'
-  showTickers = true;
-  youName = 'YOU'; // which to represent as 'YOU'
-  shortName = { first: false, last: false };
-  shortNumber = false;
   blurName = false;
 
+  // data
+  sort: SortSettings = { key: 'dps', rule: -1 };
+  playerLimit = 8; // combatant limit
+  showLB = true;
+  youName = 'YOU'; // which to represent as 'YOU'
+  petMergeID = ''; // merge pet data when using global client with cn language patch
+  bottomDisp: BottomDispMapKey = 'maxhit';
+
+  // display
+  dispMode: DisplayModeMapKey = 'single';
+  dispContent: DispContentSettings = { left: 'hps', right: 'dps' };
+  hlYou = true; // highlight 'YOU'
+  ticker: TickerSettings = { top: 'none', bottom: 'dps' };
+  tickerAlign: TickerAlignSettings = { top: 'right', bottom: 'left' };
+  shortName: ShortNameMapKey = 'fstlst';
+  shortNumber = false;
+
   // general
-  theme = 'default';
-  lang = 'en';
+  theme: ThemeMapKey = 'default';
+  lang: LangMapKey = 'en';
   zoom = 1;
   customCSS = '#root {}';
 
@@ -62,11 +101,13 @@ class Settings {
   /**
    * @constructor
    */
-  constructor() {
+  constructor(translation: Translation) {
+    trans = translation;
+
     // merge saved settings into default settings
-    const savedSettings = (getLS('settings') || {}) as SavedPartialSettings;
+    const savedSettings = (getLS('settings') || {}) as PartialSettings;
     for (const key of Object.keys(savedSettings)) {
-      // @ts-expect-error merge SavedPartialSettings into Settings
+      // @ts-expect-error merge PartialSettings into Settings
       this[key] = savedSettings[key];
     }
 
@@ -75,11 +116,13 @@ class Settings {
     // apply initial lang
     document.documentElement.setAttribute('lang', this.lang);
     // apply initial zoom
-    document.documentElement.style.fontSize = `${Math.floor(100 * this.zoom) || 100}px`;
+    document.documentElement.style.fontSize = `${
+      Math.floor(100 * this.zoom) || 100
+    }px`;
     // apply initial custom style
     const customStyles = document.createElement('style');
     customStyles.setAttribute('id', 'skyline-custom-css');
-    customStyles.innerHTML = this.customCSS;
+    customStyles.innerHTML = xssEscape(this.customCSS);
     document.head.appendChild(customStyles);
 
     // init mobx
@@ -92,44 +135,69 @@ class Settings {
     this.showSettings = !this.showSettings;
     saveSettings({ showSettings: this.showSettings });
   }
-  toggleMinimalMode() {
-    this.minimalMode = !this.minimalMode;
-    saveSettings({ minimalMode: this.minimalMode });
+  toggleBlurName() {
+    this.blurName = !this.blurName;
+    saveSettings({ blurName: this.blurName });
   }
 
   // data
-  updateSortRule(payload: { key: string; value: number }) {
-    const { key, value } = payload;
-    this.sortRule = { key, value };
-    saveSettings({ sortRule: { key, value } });
+  updateSort(payload: PartialSortSettings) {
+    this.sort = { ...this.sort, ...payload };
+    saveSettings({ sort: this.sort });
   }
   updatePlayerLimit(payload: number) {
-    if (payload > 0) {
-      this.playerLimit = payload;
-      saveSettings({ playerLimit: payload });
-    }
+    this.playerLimit = payload;
+    saveSettings({ playerLimit: payload });
   }
-  updateShowLB = getAction('showLB');
-  updatePetMergeID = getAction('petMergeID');
-  updateShowHPS = getAction('showHPS');
-  updateExtendDetail = getAction('extendDetail');
-  updateBottomDisp = getAction('bottomDisp');
+  updateShowLB(payload: boolean) {
+    this.showLB = payload;
+    saveSettings({ showLB: payload });
+  }
+  updateYouName(payload: string) {
+    this.youName = payload;
+    saveSettings({ youName: payload });
+  }
+  updatePetMergeID(payload: string) {
+    this.petMergeID = payload;
+    saveSettings({ petMergeID: payload });
+  }
+  updateBottomDisp(payload: BottomDispMapKey) {
+    this.bottomDisp = payload;
+    saveSettings({ bottomDisp: payload });
+  }
 
   /* display */
-  updateShowRanks = getAction('showRanks');
-  updateHlYou = getAction('hlYou');
-  updateShowTickers = getAction('showTickers');
-  updateYouName = getAction('youName');
-  updateShortName(payload: { first: boolean; last: boolean }) {
-    const { first, last } = payload;
-    this.shortName = { first, last };
-    saveSettings({ shortName: { first, last } });
+  updateDispMode(payload: DisplayModeMapKey) {
+    this.dispMode = payload;
+    saveSettings({ dispMode: payload });
   }
-  updateShortNumber = getAction('shortNumber');
-  updateBlurName = getAction('blurName');
+  updateDispContent(payload: PartialDispContentSettings) {
+    this.dispContent = { ...this.dispContent, ...payload };
+    saveSettings({ dispContent: this.dispContent });
+  }
+  updateHlYou(payload: boolean) {
+    this.hlYou = payload;
+    saveSettings({ hlYou: payload });
+  }
+  updateTicker(payload: PartialTickerSettings) {
+    this.ticker = { ...this.ticker, ...payload };
+    saveSettings({ ticker: this.ticker });
+  }
+  updateTickerAlign(payload: PartialTickerAlignSettings) {
+    this.tickerAlign = { ...this.tickerAlign, ...payload };
+    saveSettings({ tickerAlign: this.tickerAlign });
+  }
+  updateShortName(payload: ShortNameMapKey) {
+    this.shortName = payload;
+    saveSettings({ shortName: payload });
+  }
+  updateShortNumber(payload: boolean) {
+    this.shortNumber = payload;
+    saveSettings({ shortNumber: payload });
+  }
 
   /* layout */
-  updateTheme(payload: string) {
+  updateTheme(payload: ThemeMapKey) {
     this.theme = payload;
     if (payload === 'default') {
       document.body.removeAttribute('data-theme');
@@ -138,22 +206,23 @@ class Settings {
     }
     saveSettings({ theme: payload });
   }
-  updateLang(payload: string) {
+  updateLang(payload: LangMapKey) {
     this.lang = payload;
-    i18n.changeLanguage(payload);
-    document.documentElement.setAttribute('lang', payload);
+    trans.setTranslation(payload);
     saveSettings({ lang: payload });
   }
   updateZoom(payload: number) {
     this.zoom = payload;
-    document.documentElement.style.fontSize = `${Math.floor(100 * payload) || 100}px`;
+    document.documentElement.style.fontSize = `${
+      Math.floor(100 * payload) || 100
+    }px`;
     saveSettings({ zoom: payload });
   }
   updateCustomCSS(payload: string) {
     this.customCSS = payload;
-    const customStyles = document.querySelector('#skyline-ccss');
+    const customStyles = document.querySelector('#skyline-custom-css');
     if (customStyles) {
-      customStyles.innerHTML = payload;
+      customStyles.innerHTML = xssEscape(payload);
     }
     saveSettings({ customCSS: payload });
   }

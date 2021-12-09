@@ -1,0 +1,99 @@
+import { useCallback } from 'react';
+import { observer } from 'mobx-react-lite';
+import { date } from '../assets/meta';
+import { useStore, useTranslation } from '../hooks';
+
+function SettingsAbout() {
+  const t = useTranslation();
+
+  /**
+   * @param {Date} date
+   * @param {string} lang
+   */
+  const toDate = useCallback((date, lang) => {
+    try {
+      return date.toLocaleString(lang);
+    } catch {
+      return date.toLocaleString();
+    }
+  }, []);
+
+  const {
+    settings: { lang },
+  } = useStore();
+  const parsedDate = toDate(new Date(date), lang);
+
+  return (
+    <div className='settings-about'>
+      <div className='settings-row'>
+        <span className='settings-title'>
+          {t('Need Help', 0)}
+          <a
+            className='g-link'
+            href='https://github.com/dsrkafuu/skyline-overlay#add-translations'
+            target='_blank'
+            rel='noopener noreferrer'
+          >
+            {t('Need Help', 1)}
+          </a>
+          {t('Need Help', 2)}
+        </span>
+      </div>
+      <div className='settings-row'>
+        <span className='settings-title'>
+          {t('Request Issue', 0)}
+          <a
+            className='g-link'
+            href='https://github.com/dsrkafuu/skyline-overlay/issues'
+            target='_blank'
+            rel='noopener noreferrer'
+          >
+            {t('Request Issue', 1)}
+          </a>
+          {t('Request Issue', 2)}
+        </span>
+      </div>
+      <div className='settings-row'>
+        <span className='settings-title'>{t('Build Date')}</span>
+        <span className='settings-title'>{parsedDate}</span>
+      </div>
+      <div className='settings-row'>
+        <span className='settings-title'>{`Copyright ${new Date().getFullYear()} Apache-2.0 License`}</span>
+        <a
+          className='g-link'
+          href='https://dsrkafuu.net'
+          target='_blank'
+          rel='noopener noreferrer'
+        >
+          DSRKafuU
+        </a>
+      </div>
+      <div className='settings-row'>
+        <span className='settings-title'>Copyright 2015 MIT License</span>
+        <a
+          className='g-link'
+          href='https://github.com/ionic-team/ionicons'
+          target='_blank'
+          rel='noopener noreferrer'
+        >
+          Ionicons
+        </a>
+      </div>
+      <div className='settings-row'>
+        <span className='settings-title'>
+          Copyright 2010 SQUARE ENIX CO., LTD.
+        </span>
+        <a
+          className='g-link'
+          href='https://www.finalfantasyxiv.com'
+          target='_blank'
+          rel='noopener noreferrer'
+        >
+          FFXIV
+        </a>
+      </div>
+    </div>
+  );
+}
+
+export default observer(SettingsAbout);

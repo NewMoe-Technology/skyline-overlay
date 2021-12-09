@@ -1,10 +1,8 @@
-import { isProd } from './env';
-
 /**
  * log info
  */
 export function logInfo(...args: unknown[]) {
-  console.info('%c[skyline-overlay]', 'color: #8aa2d3', ...args);
+  console.info('[skyline-overlay]', ...args);
 }
 
 /**
@@ -18,8 +16,8 @@ export function logError(...args: unknown[]) {
  * log component rerender
  */
 export function logRender(...args: unknown[]) {
-  if (isProd()) {
+  if (import.meta.env.PROD) {
     return;
   }
-  console.info('%c[rerendered]', 'color: #a893aa', ...args);
+  console.info('[rerendered]', ...args);
 }

@@ -13,11 +13,12 @@ body {
   position: relative;
 }
 
-html {
-  @include transition();
-}
-
 #root,
 .app {
   display: block;
+}
+
+.icon {
+  stroke: currentColor;
+  fill: currentColor;
 }
