@@ -1,11 +1,13 @@
 .encounter {
-  margin-top: 0.04rem;
+  margin-top: $padding-md;
   font-size: $font-size-sm;
-  flex: 0 0 3.5rem;
+  flex: 0 0 auto;
+  width: 3.72rem;
   display: flex;
   backdrop-filter: $filter;
 
   &-duration {
+    flex: 0 0 $size-form * 2 + 0.01rem;
     height: $size-form;
     width: $size-form * 2 + 0.01rem;
     line-height: $size-form;
@@ -13,17 +15,27 @@
     color: var(--color-cover-fg);
     background-color: var(--color-cover-bg);
     text-shadow: var(--shadow-encounter);
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 
-    &.active {
+    &--active {
       color: var(--color-cover-fg-active);
       background-color: var(--color-cover-bg-active);
       text-shadow: var(--shadow-encounter-active);
     }
+
+    &:hover {
+      color: var(--color-form-fg-active);
+      background-color: var(--color-form-bg-active);
+      text-shadow: none;
+    }
   }
 
   &-content {
-    flex: 1 0 auto;
-    padding: $padding-sm $padding-xl;
+    flex: 1 1 auto;
     display: flex;
     flex-wrap: nowrap;
     height: $size-form;
@@ -31,18 +43,47 @@
     color: var(--color-encounter-fg);
     background-color: var(--color-encounter-bg);
     text-shadow: var(--shadow-encounter);
-  }
+    white-space: nowrap;
+    overflow: hidden;
 
-  &-zone {
-    flex: 1 1 auto;
-    text-align: left;
-  }
+    &-zone {
+      padding: $padding-sm 0;
+      padding-left: $padding-xl;
+      flex: 1 1 auto;
+      text-align: left;
+      white-space: nowrap;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
-  &-numbers {
-    flex: 0 0 auto;
+    &-numbers {
+      padding: $padding-sm 0;
+      padding-right: $padding-xl;
+      padding-left: $padding-lg;
+      flex: 0 0 auto;
+      cursor: pointer;
+
+      &:hover {
+        color: var(--color-form-fg-active);
+        background-color: var(--color-form-bg-active);
+        text-shadow: none;
+      }
+    }
+
+    &--full {
+      .encounter-content-zone {
+        padding-right: $padding-xl;
+      }
+
+      .encounter-content-numbers {
+        display: none;
+      }
+    }
   }
 
   &-buttons {
+    flex: 0 0 $size-form * 2;
     cursor: pointer;
     color: var(--color-cover-fg);
     background-color: var(--color-cover-bg);

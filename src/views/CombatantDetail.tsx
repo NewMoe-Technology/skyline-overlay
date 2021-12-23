@@ -10,13 +10,10 @@ import { fmtNumber } from '../utils/formatters';
 
 interface CombatantDetailProps {
   player: CombatantData | LimitBreakData;
-  locked: boolean;
+  lockDetail: boolean;
 }
 
-function CombatantDetail(
-  { player, locked, ...props }: CombatantDetailProps,
-  ref: React.ForwardedRef<HTMLDivElement>
-) {
+function CombatantDetail({ player, lockDetail }: CombatantDetailProps) {
   const t = useTranslation();
   const { settings } = useStore();
   const { dispMode, dispContent, bottomDisp, shortNumber } = settings;
@@ -121,9 +118,9 @@ function CombatantDetail(
   } else {
     return (
       <div
-        className={cn(['combatant-detail', { locked }])}
-        ref={ref}
-        {...props}
+        className={cn('combatant-detail', {
+          'combatant-detail--locked': lockDetail,
+        })}
         style={{ top: topWithTick }}
       >
         <SList items={rowItems} />
@@ -132,4 +129,4 @@ function CombatantDetail(
   }
 }
 
-export default observer(CombatantDetail, { forwardRef: true });
+export default observer(CombatantDetail);

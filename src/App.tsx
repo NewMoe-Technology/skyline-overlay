@@ -12,7 +12,7 @@ function App() {
   // get data from store
   const {
     api: { combatant, lb, overlay },
-    settings: { sort, playerLimit, showLB, petMergeID },
+    settings: { showCombatants, sort, playerLimit, showLB, petMergeID },
   } = useStore();
   let players = cloneDeep(combatant);
 
@@ -42,8 +42,8 @@ function App() {
 
   return (
     <div className='app'>
-      <div className='g-container'>
-        {Boolean(combatant) && combatant.length > 0 && (
+      <div className='container'>
+        {showCombatants && Boolean(combatant) && combatant.length > 0 && (
           <div className='combatants'>
             {playersWithLB.map((player, index) => (
               <Combatant player={player} index={index} key={player.name} />
@@ -51,10 +51,10 @@ function App() {
           </div>
         )}
       </div>
-      <div className='g-container'>
+      <div className='container'>
         <Encounter />
       </div>
-      <div className='g-container'>
+      <div className='container'>
         <Settings />
       </div>
     </div>

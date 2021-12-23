@@ -22,6 +22,8 @@
   }
 
   &-name {
+    cursor: pointer;
+
     &--blured {
       filter: blur(0.04rem);
     }
@@ -74,6 +76,7 @@
     padding: 0.04rem 0.08rem;
     background-color: var(--color-combatant-bg-others);
     backdrop-filter: $filter;
+    cursor: pointer;
 
     &-data {
       height: 0.16rem;
@@ -101,7 +104,7 @@
       justify-content: center;
       align-items: center;
 
-      .icon {
+      .g-icon {
         font-size: 0.24rem;
         filter: drop-shadow(var(--icon-shadow));
         color: var(--icon-color);
@@ -114,27 +117,27 @@
     left: 0;
     right: 0;
     // top: 0.50rem; // each ticker 0.04rem
-    z-index: 99;
+    z-index: 999;
     backdrop-filter: $filter;
     background-color: var(--color-combatant-bg-others);
   }
 
-  .jobtype-dps &-detail.locked {
+  .jobtype-dps &-detail--locked {
     background-color: var(--color-combatant-bg-dps);
   }
-  .jobtype-tank &-detail.locked {
+  .jobtype-tank &-detail--locked {
     background-color: var(--color-combatant-bg-tank);
   }
-  .jobtype-healer &-detail.locked {
+  .jobtype-healer &-detail--locked {
     background-color: var(--color-combatant-bg-heal);
   }
-  .jobtype-hand &-detail.locked,
-  .jobtype-land &-detail.locked,
-  .jobtype-unknown &-detail.locked {
+  .jobtype-hand &-detail--locked,
+  .jobtype-land &-detail--locked,
+  .jobtype-unknown &-detail--locked {
     background-color: var(--color-combatant-bg-others);
   }
   // self highlight color
-  .job-self &-detail.locked {
+  .job-self &-detail--locked {
     background-color: var(--color-combatant-bg-self);
   }
 }

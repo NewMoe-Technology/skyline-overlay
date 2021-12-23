@@ -1,7 +1,8 @@
 .settings {
   margin-top: $padding-md;
   font-size: $font-size-sm;
-  flex: 0 0 3.5rem;
+  flex: 0 0 auto;
+  width: 3.72rem;
   color: var(--color-settings-fg);
   background-color: var(--color-settings-bg);
   text-shadow: var(--shadow-settings);
@@ -25,7 +26,7 @@
     text-align: center;
     cursor: pointer;
 
-    &.active,
+    &--active,
     &:hover {
       text-shadow: var(--shadow-settings-tab-active);
       color: var(--color-settings-tab-fg-active);

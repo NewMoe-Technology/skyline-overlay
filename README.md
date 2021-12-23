@@ -27,6 +27,8 @@ Need to be used with [ngld/OverlayPlugin](https://github.com/ngld/OverlayPlugin)
 
 > Note that `backdrop-filter` support needs to be enabled manually on Firefox, check [Can I use](https://caniuse.com/css-backdrop-filter) for more details.
 
+2K+ (WQHD+) screen with 1.2x scale is recommended for better experience in FFXIV.
+
 By default the overlay follows the pet-merging policy set in the FFXIV ACT Plugin. When playing on global servers with a custom language patch which causes the plugin's pet-merging not working, you can set your ID in an overlay config to manually merge your pets' data.
 
 Local:
@@ -41,8 +43,9 @@ npm start
 ## Env
 
 ```
-VITE_BASE_URL="./" # dist base url
-VITE_GA_ID="" # analytics id
+VITE_BASE_URL="./"    # dist base url (optional)
+VITE_GA_ID=""         # google analytics id
+VITE_SENTRY_DSN=""    # sentry dsn for error tracking & perfromance measuring (optional)
 ```
 
 ## Contribute
@@ -76,7 +79,7 @@ Please use [ISO 639-1:2002](https://en.wikipedia.org/wiki/List_of_ISO_639-1_code
 
 ## Major Dependencies
 
-- React: <https://reactjs.org/>
+- React: <https://reactjs.org>
 - MobX: <https://mobx.js.org>
 - Vite: <https://vitejs.dev>
 - ffxiv-overlay-api: <https://github.com/dsrkafuu/ffxiv-overlay-api>

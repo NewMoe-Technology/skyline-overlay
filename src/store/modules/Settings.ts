@@ -1,5 +1,5 @@
 import { makeAutoObservable } from 'mobx';
-import Translation from './Translation';
+import { Store } from '..';
 import { setLS, getLS } from '../../utils/storage';
 import { xssEscape } from '../../utils/lodash';
 import {
@@ -63,13 +63,13 @@ interface PartialTickerAlignSettings {
   bottom?: TickerAlignMapKey;
 }
 
-// translation store
-let trans: Translation;
-
 class Settings {
+  rootStore: Store = null as never;
+
   /** @mobx state */
 
   // settings container display
+  showCombatants = true;
   showSettings = false;
   blurName = false;
 
@@ -101,9 +101,7 @@ class Settings {
   /**
    * @constructor
    */
-  constructor(translation: Translation) {
-    trans = translation;
-
+  constructor(rootStore: Store) {
     // merge saved settings into default settings
     const savedSettings = (getLS('settings') || {}) as PartialSettings;
     for (const key of Object.keys(savedSettings)) {
@@ -126,11 +124,20 @@ class Settings {
     document.head.appendChild(customStyles);
 
     // init mobx
-    makeAutoObservable(this, {}, { autoBind: true });
+    this.rootStore = rootStore;
+    makeAutoObservable(this, { rootStore: false }, { autoBind: true });
   }
 
   /** @mobx actions */
 
+  toggleShowCombatants(payload?: boolean) {
+    if (payload !== undefined) {
+      this.showCombatants = payload;
+    } else {
+      this.showCombatants = !this.showCombatants;
+    }
+    saveSettings({ showCombatants: this.showCombatants });
+  }
   toggleSettings() {
     this.showSettings = !this.showSettings;
     saveSettings({ showSettings: this.showSettings });
@@ -208,7 +215,7 @@ class Settings {
   }
   updateLang(payload: LangMapKey) {
     this.lang = payload;
-    trans.setTranslation(payload);
+    this.rootStore.translation.setTranslation(payload);
     saveSettings({ lang: payload });
   }
   updateZoom(payload: number) {
