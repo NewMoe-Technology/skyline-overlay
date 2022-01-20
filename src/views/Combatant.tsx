@@ -1,7 +1,7 @@
 import './Combatant.scss';
 import { useCallback, useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import cn, { Argument } from 'classnames';
+import clsx, { ClassArray } from 'clsx';
 import { CombatantData, LimitBreakData } from 'ffxiv-overlay-api';
 import CombatantName from './CombatantName';
 import CombatantDetail from './CombatantDetail';
@@ -17,10 +17,10 @@ interface CombatantProps {
   index: number;
 }
 
-function Combatant({ player, index }: CombatantProps) {
+function Combatant({ player }: CombatantProps) {
   // get data
   const { name } = player;
-  const classes: Argument[] = ['combatant']; // grid classnames
+  const classes: ClassArray = ['combatant']; // grid classnames
   const { settings } = useStore();
   const { hlYou, youName, bottomDisp, ticker, tickerAlign, dispMode } =
     settings;
@@ -43,6 +43,9 @@ function Combatant({ player, index }: CombatantProps) {
   const needDetail = name !== 'Limit Break' && bottomDisp !== 'none';
   const [showDetail, setShowDetail] = useState(false);
   const [lockDetail, setLockDetail] = useState(false);
+  if (!needDetail) {
+    classes.push('combatant-no-detail');
+  }
 
   // tickers
   const getTickerProps = useCallback(
@@ -105,8 +108,8 @@ function Combatant({ player, index }: CombatantProps) {
   );
 
   return (
-    <div className={cn(...classes)}>
-      <CombatantName player={player} index={index} />
+    <div className={clsx(...classes)}>
+      <CombatantName player={player} />
 
       {ticker.top && ticker.top !== 'none' && (
         <STicker {...getTickerProps(ticker.top)} align={tickerAlign.top} />

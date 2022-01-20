@@ -81,3 +81,20 @@ export const MAP_LANG = rawLang;
 import themes from '../themes';
 export type ThemeMapKey = keyof typeof themes & string;
 export const MAP_THEMES = themes;
+
+// font family map
+const fontFamilyMap = {
+  default: { text: 'Default' },
+  misans: { text: 'MiSans' },
+};
+export type FontFamilyMapKey = keyof typeof fontFamilyMap & string;
+export const MAP_FONT_FAMILY = fontFamilyMap;
+
+// font weight map
+const fontWeightMap = {
+  light: { text: 'Light', data: { weight: '300' } },
+  regular: { text: 'Regular', data: { weight: '400' } },
+  medium: { text: 'Medium', data: { weight: '500' } },
+};
+export type FontWeightMapKey = keyof typeof fontWeightMap & string;
+export const MAP_FONT_WEIGHT = fontWeightMap;

@@ -1,6 +1,6 @@
 import './Encounter.scss';
 import { useCallback, useRef, useState } from 'react';
-import cn from 'classnames';
+import clsx from 'clsx';
 import { observer } from 'mobx-react-lite';
 import { version } from '../assets/meta';
 import {
@@ -81,17 +81,17 @@ function Encounter() {
   return (
     <div className='encounter'>
       <div
-        className={cn('encounter-duration', {
+        className={clsx('encounter-duration', {
           'encounter-duration--active': active,
         })}
-        onMouseEnter={onDurationEnter}
-        onMouseLeave={onDurationLeave}
+        onMouseOver={onDurationEnter}
+        onMouseOut={onDurationLeave}
         onClick={handleEndEncounter}
       >
         {DurationInner}
       </div>
       <div
-        className={cn('encounter-content', {
+        className={clsx('encounter-content', {
           'encounter-content--full': fullZoneName,
         })}
       >

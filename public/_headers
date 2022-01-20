@@ -1,0 +1,7 @@
+/*
+  X-Frame-Options: SAMEORIGIN
+  X-Content-Type-Options: nosniff
+  Permissions-Policy: interest-cohort=()
+
+/fonts/*
+  Cache-Control: public, max-age=2592000

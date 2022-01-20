@@ -12,6 +12,9 @@ import {
   TickerAlignMapKey,
   TickerMapKey,
   BottomDispMapKey,
+  FontFamilyMapKey,
+  FontWeightMapKey,
+  MAP_FONT_WEIGHT,
 } from '../../utils/constants';
 
 interface PartialSettings {
@@ -94,6 +97,8 @@ class Settings {
   theme: ThemeMapKey = 'default';
   lang: LangMapKey = 'en';
   zoom = 1;
+  font: FontFamilyMapKey = 'default';
+  fontWeight: FontWeightMapKey = 'regular';
   customCSS = '#root {}';
 
   /** @mobx computed */
@@ -102,6 +107,8 @@ class Settings {
    * @constructor
    */
   constructor(rootStore: Store) {
+    this.rootStore = rootStore;
+
     // merge saved settings into default settings
     const savedSettings = (getLS('settings') || {}) as PartialSettings;
     for (const key of Object.keys(savedSettings)) {
@@ -111,6 +118,11 @@ class Settings {
 
     // apply initial theme
     document.body.setAttribute('data-theme', this.theme);
+    // apply initial font
+    document.documentElement.setAttribute('data-font', this.font);
+    // apply initial font weight
+    const weight = MAP_FONT_WEIGHT[this.fontWeight].data.weight;
+    document.documentElement.style.fontWeight = weight;
     // apply initial lang
     document.documentElement.setAttribute('lang', this.lang);
     // apply initial zoom
@@ -124,7 +136,6 @@ class Settings {
     document.head.appendChild(customStyles);
 
     // init mobx
-    this.rootStore = rootStore;
     makeAutoObservable(this, { rootStore: false }, { autoBind: true });
   }
 
@@ -215,7 +226,6 @@ class Settings {
   }
   updateLang(payload: LangMapKey) {
     this.lang = payload;
-    this.rootStore.translation.setTranslation(payload);
     saveSettings({ lang: payload });
   }
   updateZoom(payload: number) {
@@ -224,6 +234,17 @@ class Settings {
       Math.floor(100 * payload) || 100
     }px`;
     saveSettings({ zoom: payload });
+  }
+  updateFont(payload: FontFamilyMapKey) {
+    this.font = payload;
+    document.documentElement.setAttribute('data-font', payload);
+    saveSettings({ font: payload });
+  }
+  updateFontWeight(payload: FontWeightMapKey) {
+    this.fontWeight = payload;
+    const weight = MAP_FONT_WEIGHT[payload].data.weight;
+    document.documentElement.style.fontWeight = weight;
+    saveSettings({ fontWeight: payload });
   }
   updateCustomCSS(payload: string) {
     this.customCSS = payload;
