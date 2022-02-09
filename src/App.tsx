@@ -1,4 +1,5 @@
 import './App.scss';
+import { CSSProperties } from 'react';
 import { observer } from 'mobx-react-lite';
 import { CombatantData, LimitBreakData } from 'ffxiv-overlay-api';
 import Combatant from './views/Combatant';
@@ -12,7 +13,14 @@ function App() {
   // get data from store
   const {
     api: { combatant, lb, overlay },
-    settings: { showCombatants, sort, playerLimit, showLB, petMergeID },
+    settings: {
+      showCombatants,
+      sort,
+      playerLimit,
+      showLB,
+      petMergeID,
+      opacity,
+    },
   } = useStore();
   let players = cloneDeep(combatant);
 
@@ -40,9 +48,13 @@ function App() {
     playersWithLB.push(cloneDeep(lb));
   }
 
+  const opacityStyle: CSSProperties = {
+    opacity: opacity >= 0.1 && opacity <= 1 ? opacity : 1,
+  };
+
   return (
     <div className='app'>
-      <div className='container'>
+      <div className='container' style={opacityStyle}>
         {showCombatants && Boolean(combatant) && combatant.length > 0 && (
           <div className='combatants'>
             {playersWithLB.map((player, index) => (
@@ -51,7 +63,7 @@ function App() {
           </div>
         )}
       </div>
-      <div className='container'>
+      <div className='container' style={opacityStyle}>
         <Encounter />
       </div>
       <div className='container'>

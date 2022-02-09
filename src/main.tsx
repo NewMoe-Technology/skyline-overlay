@@ -24,12 +24,18 @@ if (sentryDsn && import.meta.env.PROD) {
 }
 
 import ReactDOM from 'react-dom';
+import { isCEFSharp } from 'ffxiv-overlay-api';
 import { StoreContext, store } from './store';
 import App from './App';
+import DevPanel from './DevPanel';
+
+let app = <App />;
+// should be tree-shaked in production by vite
+if (import.meta.env.DEV && !isCEFSharp()) {
+  app = <DevPanel>{app}</DevPanel>;
+}
 
 ReactDOM.render(
-  <StoreContext.Provider value={store}>
-    <App />
-  </StoreContext.Provider>,
+  <StoreContext.Provider value={store}>{app}</StoreContext.Provider>,
   document.getElementById('root')
 );

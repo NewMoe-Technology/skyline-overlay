@@ -255,6 +255,19 @@ function Settings() {
             ),
           },
           {
+            title: t('Opacity'),
+            render: () => (
+              <SInputNumber
+                value={settings.opacity}
+                onChange={(val) => settings.updateOpacity(val)}
+                min={0.1}
+                max={1}
+                step={0.1}
+                accuracy={1}
+              />
+            ),
+          },
+          {
             title: t('Font Family'),
             render: () => (
               <SSelect
