@@ -2,11 +2,12 @@
   margin-top: $padding-md;
   font-size: $font-size-sm;
   flex: 0 0 auto;
-  width: 3.72rem;
+  width: 4rem;
   display: flex;
   backdrop-filter: $filter;
 
   &-duration {
+    cursor: pointer;
     flex: 0 0 $size-form * 2 + 0.01rem;
     height: $size-form;
     width: $size-form * 2 + 0.01rem;
@@ -15,7 +16,6 @@
     color: var(--color-cover-fg);
     background-color: var(--color-cover-bg);
     text-shadow: var(--shadow-encounter);
-    cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -81,31 +81,27 @@
     }
   }
 
-  &-buttons {
-    flex: 0 0 $size-form * 2;
+  &-btns {
+    display: flex;
+  }
+
+  &-btn {
     cursor: pointer;
     color: var(--color-cover-fg);
     background-color: var(--color-cover-bg);
     position: relative;
+    flex: 0 0 auto;
     height: $size-form;
-    width: $size-form * 2;
+    width: $size-form;
     display: flex;
-    overflow-y: hidden;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    overflow: hidden;
 
-    .btn {
-      position: relative;
-      flex: 0 0 auto;
-      height: $size-form;
-      width: $size-form;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-
-      &:hover {
-        color: var(--color-form-fg-active);
-        background-color: var(--color-form-bg-active);
-      }
+    &:hover {
+      color: var(--color-form-fg-active);
+      background-color: var(--color-form-bg-active);
     }
   }
 }

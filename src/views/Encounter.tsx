@@ -7,9 +7,7 @@ import {
   IChevronUpCircle,
   IChevronDownCircle,
   ISettings,
-  IRefreshCircle,
 } from '../assets/icons';
-import { logInfo } from '../utils/loggers';
 import { useStore } from '../hooks';
 import { fmtNumber } from '../utils/formatters';
 
@@ -19,7 +17,21 @@ function Encounter() {
   const { showCombatants, shortNumber, toggleShowCombatants } = settings;
 
   // encounter data
-  const duration = encounter.duration || '00:00';
+  let duration = encounter.duration || '00:00';
+  const time = duration.split(':');
+  if (time.length === 3) {
+    // add hours to minutes
+    const hours = Number.parseInt(time[0], 10);
+    let minutes = Number.parseInt(time[1], 10);
+    minutes = minutes + hours * 60;
+    if (minutes > 99) {
+      duration = '99:59';
+    } else {
+      duration = `${minutes}:${time[2]}`;
+    }
+  } else if (time.length > 3) {
+    duration = '99:59';
+  }
   const zoneName = encounter.zoneName || `Skyline Overlay ${version}`;
 
   /**
@@ -27,7 +39,6 @@ function Encounter() {
    */
   const handleEndEncounter = useCallback(async () => {
     await overlay.endEncounter();
-    logInfo('encounter ended');
   }, [overlay]);
 
   /**
@@ -36,20 +47,6 @@ function Encounter() {
   const handleToggleShowCombatants = useCallback(() => {
     toggleShowCombatants();
   }, [toggleShowCombatants]);
-
-  // end encounter related
-  const [durationHovered, setDurationHovered] = useState(false);
-  const DurationInner = durationHovered ? (
-    <IRefreshCircle />
-  ) : (
-    <span>{duration}</span>
-  );
-  const onDurationEnter = useCallback(() => {
-    setDurationHovered(true);
-  }, []);
-  const onDurationLeave = useCallback(() => {
-    setDurationHovered(false);
-  }, []);
 
   // overflow zonename related
   const [fullZoneName, setFullZoneName] = useState(false);
@@ -84,11 +81,9 @@ function Encounter() {
         className={clsx('encounter-duration', {
           'encounter-duration--active': active,
         })}
-        onMouseOver={onDurationEnter}
-        onMouseOut={onDurationLeave}
         onClick={handleEndEncounter}
       >
-        {DurationInner}
+        <span>{duration}</span>
       </div>
       <div
         className={clsx('encounter-content', {
@@ -108,11 +103,14 @@ function Encounter() {
           <span className='g-counter'>{showDHPS.toUpperCase()}</span>
         </div>
       </div>
-      <div className='encounter-buttons'>
-        <div className='btn' onClick={handleToggleShowCombatants}>
+      <div className='encounter-btns'>
+        <div className='encounter-btn' onClick={handleToggleShowCombatants}>
           {showCombatants ? <IChevronUpCircle /> : <IChevronDownCircle />}
         </div>
-        <div className='btn' onClick={() => settings.toggleSettings()}>
+        <div
+          className='encounter-btn'
+          onClick={() => settings.toggleSettings()}
+        >
           <ISettings />
         </div>
       </div>

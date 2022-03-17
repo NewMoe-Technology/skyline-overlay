@@ -1,6 +1,6 @@
 import { makeAutoObservable } from 'mobx';
 import { Store } from '..';
-import { setLS, getLS } from '../../utils/storage';
+import { setLS, getLS, removeLS } from '../../utils/storage';
 import { xssEscape } from '../../utils/lodash';
 import {
   LangMapKey,
@@ -15,6 +15,7 @@ import {
   FontFamilyMapKey,
   FontWeightMapKey,
   MAP_FONT_WEIGHT,
+  EXPORT_PREFIX,
 } from '../../utils/constants';
 
 interface PartialSettings {
@@ -66,6 +67,15 @@ interface PartialTickerAlignSettings {
   bottom?: TickerAlignMapKey;
 }
 
+interface FontSettings {
+  family: FontFamilyMapKey;
+  weight: FontWeightMapKey;
+}
+interface PartialFontSettings {
+  family?: FontFamilyMapKey;
+  weight?: FontWeightMapKey;
+}
+
 class Settings {
   rootStore: Store = null as never;
 
@@ -98,8 +108,7 @@ class Settings {
   lang: LangMapKey = 'en';
   zoom = 1;
   opacity = 1;
-  font: FontFamilyMapKey = 'default';
-  fontWeight: FontWeightMapKey = 'regular';
+  fonts: FontSettings = { family: 'default', weight: 'regular' };
   customCSS = '#root {}';
 
   /** @mobx computed */
@@ -118,23 +127,25 @@ class Settings {
     }
 
     // apply initial theme
-    document.body.setAttribute('data-theme', this.theme);
-    // apply initial font
-    document.documentElement.setAttribute('data-font', this.font);
+    document.body.setAttribute('data-theme', this.theme || 'default');
+    // apply initial fonts
+    const family = this.fonts?.family || 'default';
+    document.documentElement.setAttribute('data-font', family);
     // apply initial font weight
-    const weight = MAP_FONT_WEIGHT[this.fontWeight].data.weight;
+    const weight = MAP_FONT_WEIGHT[this.fonts?.weight || 'regular'].text;
     document.documentElement.style.fontWeight = weight;
     // apply initial lang
-    document.documentElement.setAttribute('lang', this.lang);
+    document.documentElement.setAttribute('lang', this.lang || 'en');
     // apply initial zoom
-    document.documentElement.style.fontSize = `${
-      Math.floor(100 * this.zoom) || 100
-    }px`;
+    const zoomFontSize = `${Math.floor(100 * (this.zoom || 1)) || 100}px`;
+    document.documentElement.style.fontSize = zoomFontSize;
     // apply initial custom style
-    const customStyles = document.createElement('style');
-    customStyles.setAttribute('id', 'skyline-custom-css');
-    customStyles.innerHTML = xssEscape(this.customCSS);
-    document.head.appendChild(customStyles);
+    if (this.customCSS) {
+      const customStyles = document.createElement('style');
+      customStyles.setAttribute('id', 'skyline-custom-css');
+      customStyles.innerHTML = xssEscape(this.customCSS);
+      document.head.appendChild(customStyles);
+    }
 
     // init mobx
     makeAutoObservable(this, { rootStore: false }, { autoBind: true });
@@ -240,16 +251,17 @@ class Settings {
     }px`;
     saveSettings({ zoom: payload });
   }
-  updateFont(payload: FontFamilyMapKey) {
-    this.font = payload;
-    document.documentElement.setAttribute('data-font', payload);
-    saveSettings({ font: payload });
-  }
-  updateFontWeight(payload: FontWeightMapKey) {
-    this.fontWeight = payload;
-    const weight = MAP_FONT_WEIGHT[payload].data.weight;
-    document.documentElement.style.fontWeight = weight;
-    saveSettings({ fontWeight: payload });
+  updateFonts(payload: PartialFontSettings) {
+    const { family, weight } = payload;
+    if (family) {
+      document.documentElement.setAttribute('data-font', family);
+    }
+    if (weight) {
+      const fontWeight = MAP_FONT_WEIGHT[weight].text;
+      document.documentElement.style.fontWeight = fontWeight;
+    }
+    this.fonts = { ...this.fonts, ...payload };
+    saveSettings({ fonts: this.fonts });
   }
   updateCustomCSS(payload: string) {
     this.customCSS = payload;
@@ -258,6 +270,43 @@ class Settings {
       customStyles.innerHTML = xssEscape(payload);
     }
     saveSettings({ customCSS: payload });
+  }
+
+  exportSettings() {
+    const settings = getLS('settings') as PartialSettings;
+    if (settings && typeof settings === 'object') {
+      try {
+        return EXPORT_PREFIX + window.btoa(JSON.stringify(settings));
+      } catch {
+        return '';
+      }
+    }
+    return '';
+  }
+  importSettings(payload: string) {
+    if (!payload.startsWith(EXPORT_PREFIX)) {
+      return false;
+    }
+    payload = payload.slice(EXPORT_PREFIX.length);
+    const validKeys = Object.keys(this);
+    try {
+      const settings = JSON.parse(window.atob(payload));
+      if (!settings || typeof settings !== 'object') {
+        return false;
+      }
+      for (const key of Object.keys(settings)) {
+        if (!validKeys.includes(key)) {
+          return false;
+        }
+      }
+      setLS('settings', settings);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  clearSettings() {
+    removeLS('settings');
   }
 }
 

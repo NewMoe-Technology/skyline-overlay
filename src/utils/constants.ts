@@ -1,5 +1,6 @@
 // local storage key
 export const STORAGE_PREFIX = 'SKYLINE_V3_';
+export const EXPORT_PREFIX = 'SKYLINE_V3_SETTINGS_';
 
 // value maps for selection component
 
@@ -92,9 +93,9 @@ export const MAP_FONT_FAMILY = fontFamilyMap;
 
 // font weight map
 const fontWeightMap = {
-  light: { text: 'Light', data: { weight: '300' } },
-  regular: { text: 'Regular', data: { weight: '400' } },
-  medium: { text: 'Medium', data: { weight: '500' } },
+  light: { text: '300' },
+  regular: { text: '400' },
+  medium: { text: '500' },
 };
 export type FontWeightMapKey = keyof typeof fontWeightMap & string;
 export const MAP_FONT_WEIGHT = fontWeightMap;

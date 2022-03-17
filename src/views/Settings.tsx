@@ -4,6 +4,7 @@ import { observer } from 'mobx-react-lite';
 import clsx from 'clsx';
 import SettingsAbout from './SettingsAbout';
 import SettingsPanel, { SettingsPanelProps } from './SettingsPanel';
+import SettingsTransfer from './SettingsTransfer';
 import { SInputNumber, SSelect, SInput, SSwitch } from '../components';
 import {
   MAP_LANG,
@@ -27,6 +28,8 @@ function Settings() {
   const t = useTranslation();
   const { settings, translation } = useStore();
 
+  // render functions can safely access store
+  // since they are wrapped in `Observer` in `SettingsPanel`
   const panels = useMemo<SettingsPanelProps[]>(
     () => [
       { type: 'about', title: t('About') },
@@ -158,12 +161,14 @@ function Settings() {
                   value={settings.ticker.top}
                   onChange={(val) => settings.updateTicker({ top: val })}
                   map={MAP_TICKER}
+                  position='top'
                 />
                 <SSelect
                   className='settings-ticker-display'
                   value={settings.ticker.bottom}
                   onChange={(val) => settings.updateTicker({ bottom: val })}
                   map={MAP_TICKER}
+                  position='top'
                 />
               </>
             ),
@@ -178,6 +183,7 @@ function Settings() {
                   onChange={(val) => settings.updateTickerAlign({ top: val })}
                   disabled={settings.ticker.top === 'none'}
                   map={MAP_TICKER_ALIGN}
+                  position='top'
                 />
                 <SSelect
                   className='settings-ticker-align'
@@ -187,6 +193,7 @@ function Settings() {
                   }
                   disabled={settings.ticker.bottom === 'none'}
                   map={MAP_TICKER_ALIGN}
+                  position='top'
                 />
               </>
             ),
@@ -198,6 +205,7 @@ function Settings() {
                 value={settings.bottomDisp}
                 onChange={(val) => settings.updateBottomDisp(val)}
                 map={MAP_BOTTOM_DISP}
+                position='top'
               />
             ),
           },
@@ -208,6 +216,7 @@ function Settings() {
                 value={settings.shortName}
                 onChange={(val) => settings.updateShortName(val)}
                 map={MAP_SHORT_NAME}
+                position='top'
               />
             ),
           },
@@ -270,21 +279,22 @@ function Settings() {
           {
             title: t('Font Family'),
             render: () => (
-              <SSelect
-                value={settings.font}
-                onChange={(val) => settings.updateFont(val)}
-                map={MAP_FONT_FAMILY}
-              />
-            ),
-          },
-          {
-            title: t('Font Weight'),
-            render: () => (
-              <SSelect
-                value={settings.fontWeight}
-                onChange={(val) => settings.updateFontWeight(val)}
-                map={MAP_FONT_WEIGHT}
-              />
+              <>
+                <SSelect
+                  className='settings-font-family'
+                  value={settings.fonts.family}
+                  onChange={(family) => settings.updateFonts({ family })}
+                  map={MAP_FONT_FAMILY}
+                  position='top'
+                />
+                <SSelect
+                  className='settings-font-weight'
+                  value={settings.fonts.weight}
+                  onChange={(weight) => settings.updateFonts({ weight })}
+                  map={MAP_FONT_WEIGHT}
+                  position='top'
+                />
+              </>
             ),
           },
           {
@@ -296,6 +306,11 @@ function Settings() {
                 onChange={(val) => settings.updateCustomCSS(val)}
               />
             ),
+          },
+          {
+            title: t('Transfer Settings'),
+            render: () => <SettingsTransfer />,
+            observe: false,
           },
         ],
       },

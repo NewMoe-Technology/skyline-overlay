@@ -14,6 +14,7 @@
   "Need Help": "我们需要更多社区翻译者的|帮助|！",
   "Request Issue": "如果你有疑问或建议请|提出 issue|。",
   "Build Date": "编译日期",
+  "Theme Credits": "主题设计",
 
   "Data": "数据",
   "Sort Rule": "排序规则",
@@ -38,8 +39,11 @@
   "UI Scale": "界面缩放",
   "Opacity": "透明度",
   "Font Family": "字体",
-  "Font Weight": "字重",
   "Custom CSS": "自定义 CSS",
+  "Transfer Settings": "转移设置",
 
-  "Please enter the new value": "请输入新值"
+  "Please enter the new value": "请输入新值",
+  "Copy to clipboard using Ctrl+C": "Ctrl+C 复制到剪贴板",
+  "Please enter settings data": "请输入设置数据",
+  "Invalid settings data": "无效的设置数据"
 }
