@@ -1,15 +1,16 @@
 import { mergeCombatant, CombatantData } from 'ffxiv-overlay-api';
+import { version } from '../assets/meta';
 
 /**
  * format number
  */
-export function fmtNumber(shortNumber: boolean, number: number, decimal = 1) {
-  if (!shortNumber) {
-    return `${number}`;
-  }
-
+export function fmtNumber(number: number, shortNumber = false, decimal = 1) {
   if (typeof number !== 'number') {
     number = Number(number);
+  }
+
+  if (!shortNumber) {
+    return number ? `${number}` : '0';
   }
 
   let sign = '';
@@ -84,4 +85,27 @@ export function fmtMergePet(combatant: CombatantData[] = [], yid = 'YOU') {
     res && ret.push(res);
   }
   return ret;
+}
+
+export function fmtDuration(duration: string) {
+  let _duration = duration || '00:00';
+  const time = _duration.split(':');
+  if (time.length === 3) {
+    // add hours to minutes
+    const hours = Number.parseInt(time[0], 10);
+    let minutes = Number.parseInt(time[1], 10);
+    minutes = minutes + hours * 60;
+    if (minutes > 99) {
+      _duration = '99:59';
+    } else {
+      _duration = `${minutes}:${time[2]}`;
+    }
+  } else if (time.length > 3) {
+    _duration = '99:59';
+  }
+  return _duration;
+}
+
+export function fmtZoneName(zoneName: string) {
+  return zoneName || `Skyline Overlay ${version}`;
 }
