@@ -1,6 +1,9 @@
 {
   "LANG": "简体中文",
 
+  "App Ready to Work Offline": "应用程序已准备好离线工作",
+  "Refresh to New Version Available": "刷新到可用的新版本",
+
   "Swings": "次数",
   "Deaths": "死亡",
   "Damage": "伤害",
@@ -37,13 +40,21 @@
   "Shorten Name": "缩写玩家名 (国服无效)",
 
   "General": "通常",
-  "Theme": "主题",
   "Language": "语言",
   "UI Scale": "界面缩放",
   "Opacity": "透明度",
   "Font Family": "字体",
   "Custom CSS": "自定义 CSS",
   "Transfer Settings": "转移设置",
+
+  "Theme": "主题",
+  "Theme Mode": "主题模式",
+  "Common": "通常",
+  "Self Highlighting": "自身高亮",
+  "Tickers": "数据条",
+  "Roles": "职业类别",
+  "Jobs": "职业",
+  "Theme Customization": "主题自定义",
 
   "Please enter the new value": "请输入新值",
   "Copy to clipboard using Ctrl+C": "Ctrl+C 复制到剪贴板",

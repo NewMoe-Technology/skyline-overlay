@@ -3,11 +3,13 @@ import {
   createSlice,
   PayloadAction as PA,
 } from '@reduxjs/toolkit';
+import { RootState } from '..';
+import lang from '../../lang';
+import { CUSTOM_CSS_DOM_ID } from '../../utils/constants';
 import {
   LangMapKey,
   ShortNameMapKey,
   SortRuleMapKey,
-  ThemeMapKey,
   DisplayModeMapKey,
   DisplayContentMapKey,
   TickerAlignMapKey,
@@ -16,13 +18,9 @@ import {
   FontFamilyMapKey,
   FontWeightMapKey,
   MAP_FONT_WEIGHT,
-  CUSTOM_CSS_DOM_ID,
-} from '../../utils/constants';
-import lang from '../../lang';
-import { cloneDeep, xssEscape } from '../../utils/lodash';
-import { getLS, setLS } from '../../utils/storage';
-
-type P<T> = Partial<T>;
+} from '../../utils/maps';
+import { cloneDeep, mergeDeep, xssEscape } from '../../utils/lodash';
+import { getAsyncLSSetter, getLS } from '../../utils/storage';
 
 interface SortSettings {
   key: SortRuleMapKey;
@@ -63,7 +61,6 @@ export interface Settings {
   bottomDisp: BottomDispMapKey;
   shortName: ShortNameMapKey;
   // general
-  theme: ThemeMapKey;
   lang: LangMapKey;
   zoom: number;
   opacity: number;
@@ -73,9 +70,12 @@ export interface Settings {
 
 interface SettingsState extends Settings {
   showCombatants: boolean;
+  combatantsLocked: boolean;
   showSettings: boolean;
   blurName: boolean;
 }
+
+const save = getAsyncLSSetter<DeepPartial<Settings>>('settings');
 
 /** @redux initialize */
 
@@ -95,7 +95,6 @@ export const defaultSettings: Settings = {
   tickerAlign: { top: 'right', bottom: 'left' },
   bottomDisp: 'maxhit',
   shortName: 'fstlst',
-  theme: 'default',
   lang: 'en',
   zoom: 1,
   opacity: 1,
@@ -104,64 +103,64 @@ export const defaultSettings: Settings = {
 };
 let initialState: SettingsState = {
   showCombatants: true,
+  combatantsLocked: false,
   showSettings: false,
   blurName: false,
   ...cloneDeep(defaultSettings),
 };
 
 // merge saved settings into default settings
-const savedSettings = (getLS('settings') || {}) as P<SettingsState>;
+const savedSettings = getLS<DeepPartial<Settings>>('settings') || {};
 try {
-  for (const key of Object.keys(savedSettings)) {
-    // @ts-expect-error merge PartialSettings into Settings
-    initialState[key] = savedSettings[key];
-  }
+  initialState = mergeDeep(initialState, savedSettings);
 } catch {
   // use default setting if saved settings is invalid
-  initialState = {
-    ...initialState,
-    ...cloneDeep(defaultSettings),
-  };
+  initialState = { ...initialState, ...defaultSettings };
 }
 
-// apply initial theme
-document.body.setAttribute('data-theme', initialState.theme);
-// apply initial fonts
-const family = initialState.fonts.family;
-document.documentElement.setAttribute('data-font', family);
 // apply initial lang
-if (!savedSettings.lang) {
+function applyLang(value: LangMapKey) {
+  document.documentElement.setAttribute('lang', value);
+}
+const availableLangs = Object.keys(lang);
+if (!savedSettings.lang || !availableLangs.includes(savedSettings.lang)) {
   const detectedLang = navigator.language.substring(0, 2);
-  if (Object.keys(lang).includes(detectedLang)) {
+  if (availableLangs.includes(detectedLang)) {
     initialState.lang = detectedLang as LangMapKey;
+    save({ lang: detectedLang as LangMapKey });
   }
 }
-document.documentElement.setAttribute('lang', initialState.lang);
+applyLang(initialState.lang);
+// apply initial fonts
+function applyFonts(value: FontFamilyMapKey) {
+  document.documentElement.setAttribute('data-font', value);
+}
+applyFonts(initialState.fonts.family);
 // apply initial font weight
-const weight = MAP_FONT_WEIGHT[initialState.fonts.weight].text;
-document.documentElement.style.fontWeight = weight;
+function applyFontWeight(value: FontWeightMapKey) {
+  const weight = MAP_FONT_WEIGHT[value].text;
+  document.documentElement.style.fontWeight = weight;
+}
+applyFontWeight(initialState.fonts.weight);
 // apply initial zoom
-const zoomFontSize = `${Math.floor(100 * initialState.zoom) || 100}px`;
-document.documentElement.style.fontSize = zoomFontSize;
+function applyZoom(value: number) {
+  const zoomFontSize = `${Math.floor(100 * value) || 100}px`;
+  document.documentElement.style.fontSize = zoomFontSize;
+}
+applyZoom(initialState.zoom);
 // apply initial custom style
-const customStyles = document.createElement('style');
-customStyles.setAttribute('id', CUSTOM_CSS_DOM_ID);
-customStyles.innerHTML = xssEscape(initialState.customCSS);
-document.head.appendChild(customStyles);
-
-/**
- * delay save settings
- */
-const saveSettings = (data: P<Settings>) => {
-  setTimeout(() => {
-    try {
-      const pre = (getLS('settings') || {}) as P<Settings>;
-      setLS('settings', { ...pre, ...data });
-    } catch {
-      return;
-    }
-  }, 0);
-};
+function applyCustomCSS(value: string) {
+  const el = document.getElementById(CUSTOM_CSS_DOM_ID);
+  if (el) {
+    el.innerHTML = xssEscape(value);
+  } else {
+    const newEl = document.createElement('style');
+    newEl.id = CUSTOM_CSS_DOM_ID;
+    newEl.innerHTML = xssEscape(value);
+    document.head.appendChild(newEl);
+  }
+}
+applyCustomCSS(initialState.customCSS);
 
 /** @redux slice */
 
@@ -177,6 +176,13 @@ export const settingsSlice = createSlice({
         state.showCombatants = !state.showCombatants;
       }
     },
+    toggleCombatantsLocked(state, { payload }: PA<boolean | undefined>) {
+      if (payload !== undefined) {
+        state.combatantsLocked = payload;
+      } else {
+        state.combatantsLocked = !state.combatantsLocked;
+      }
+    },
     toggleSettings(state) {
       state.showSettings = !state.showSettings;
     },
@@ -184,93 +190,90 @@ export const settingsSlice = createSlice({
       state.blurName = !state.blurName;
     },
     // data
-    updateSort(state, { payload }: PA<P<SortSettings>>) {
+    updateSort(state, { payload }: PA<Partial<SortSettings>>) {
       state.sort = { ...state.sort, ...payload };
-      saveSettings({ sort: state.sort });
+      save({ sort: state.sort });
     },
     updatePlayerLimit(state, { payload }: PA<number>) {
       state.playerLimit = payload;
-      saveSettings({ playerLimit: state.playerLimit });
+      save({ playerLimit: state.playerLimit });
     },
     updateShowLB(state, { payload }: PA<boolean>) {
       state.showLB = payload;
-      saveSettings({ showLB: state.showLB });
+      save({ showLB: state.showLB });
     },
     updateYouName(state, { payload }: PA<string>) {
       state.youName = payload;
-      saveSettings({ youName: state.youName });
+      save({ youName: state.youName });
     },
     updatePetMergeID(state, { payload }: PA<string>) {
       state.petMergeID = payload;
-      saveSettings({ petMergeID: state.petMergeID });
+      save({ petMergeID: state.petMergeID });
     },
     updateShortNumber(state, { payload }: PA<boolean>) {
       state.shortNumber = payload;
-      saveSettings({ shortNumber: state.shortNumber });
+      save({ shortNumber: state.shortNumber });
     },
     updateBigNumberMode(state, { payload }: PA<boolean>) {
       state.bigNumberMode = payload;
-      saveSettings({ bigNumberMode: state.bigNumberMode });
+      save({ bigNumberMode: state.bigNumberMode });
     },
     // display
     updateDispMode(state, { payload }: PA<DisplayModeMapKey>) {
       state.dispMode = payload;
-      saveSettings({ dispMode: state.dispMode });
+      save({ dispMode: state.dispMode });
     },
-    updateDispContent(state, { payload }: PA<P<DispContentSettings>>) {
+    updateDispContent(state, { payload }: PA<Partial<DispContentSettings>>) {
       state.dispContent = { ...state.dispContent, ...payload };
-      saveSettings({ dispContent: state.dispContent });
+      save({ dispContent: state.dispContent });
     },
     updateHlYou(state, { payload }: PA<boolean>) {
       state.hlYou = payload;
-      saveSettings({ hlYou: state.hlYou });
+      save({ hlYou: state.hlYou });
     },
-    updateTicker(state, { payload }: PA<P<TickerSettings>>) {
+    updateTicker(state, { payload }: PA<Partial<TickerSettings>>) {
       state.ticker = { ...state.ticker, ...payload };
-      saveSettings({ ticker: state.ticker });
+      save({ ticker: state.ticker });
     },
-    updateTickerAlign(state, { payload }: PA<P<TickerAlignSettings>>) {
+    updateTickerAlign(state, { payload }: PA<Partial<TickerAlignSettings>>) {
       state.tickerAlign = { ...state.tickerAlign, ...payload };
-      saveSettings({ tickerAlign: state.tickerAlign });
+      save({ tickerAlign: state.tickerAlign });
     },
     updateBottomDisp(state, { payload }: PA<BottomDispMapKey>) {
       state.bottomDisp = payload;
-      saveSettings({ bottomDisp: state.bottomDisp });
+      save({ bottomDisp: state.bottomDisp });
     },
     updateShortName(state, { payload }: PA<ShortNameMapKey>) {
       state.shortName = payload;
-      saveSettings({ shortName: state.shortName });
+      save({ shortName: state.shortName });
     },
     // general
-    updateTheme(state, { payload }: PA<ThemeMapKey>) {
-      state.theme = payload;
-      saveSettings({ theme: state.theme });
-    },
     updateOpacity(state, { payload }: PA<number>) {
       state.opacity = payload;
-      saveSettings({ opacity: state.opacity });
+      save({ opacity: state.opacity });
     },
     updateLang(state, { payload }: PA<LangMapKey>) {
       state.lang = payload;
-      saveSettings({ lang: state.lang });
+      save({ lang: state.lang });
     },
     updateZoom(state, { payload }: PA<number>) {
       state.zoom = payload;
-      saveSettings({ zoom: state.zoom });
+      save({ zoom: state.zoom });
     },
-    updateFonts(state, { payload }: PA<P<FontSettings>>) {
+    updateFonts(state, { payload }: PA<Partial<FontSettings>>) {
       state.fonts = { ...state.fonts, ...payload };
-      saveSettings({ fonts: state.fonts });
+      save({ fonts: state.fonts });
     },
     updateCustomCSS(state, { payload }: PA<string>) {
       state.customCSS = payload;
-      saveSettings({ customCSS: state.customCSS });
+      save({ customCSS: state.customCSS });
     },
   },
 });
 
 export const {
   toggleShowCombatants,
+  toggleCombatantsLocked,
   toggleSettings,
   toggleBlurName,
   updateSort,
@@ -287,7 +290,6 @@ export const {
   updateTickerAlign,
   updateBottomDisp,
   updateShortName,
-  updateTheme,
   updateOpacity,
   updateLang,
   updateZoom,
@@ -299,47 +301,41 @@ export const {
 
 export const listener = createListenerMiddleware();
 
+// when click to show combatants,
+// unlock them if locked
+listener.startListening({
+  actionCreator: toggleShowCombatants,
+  effect: ({ payload }, api) => {
+    const state = api.getState() as RootState;
+    if (
+      payload === true ||
+      (payload === undefined && state.settings.showCombatants === false)
+    ) {
+      api.dispatch(toggleCombatantsLocked(false));
+    }
+  },
+});
+
 // apply dom when settings changed
 listener.startListening({
-  actionCreator: updateTheme,
-  effect: ({ payload }) => {
-    document.body.setAttribute('data-theme', payload);
-  },
-});
-listener.startListening({
   actionCreator: updateLang,
-  effect: ({ payload }) => {
-    document.documentElement.setAttribute('lang', payload);
-  },
-});
-listener.startListening({
-  actionCreator: updateZoom,
-  effect: ({ payload }) => {
-    const zoomFontSize = `${Math.floor(100 * payload) || 100}px`;
-    document.documentElement.style.fontSize = zoomFontSize;
-  },
+  effect: ({ payload }) => applyLang(payload),
 });
 listener.startListening({
   actionCreator: updateFonts,
   effect: ({ payload }) => {
     const { family, weight } = payload;
-    if (family) {
-      document.documentElement.setAttribute('data-font', family);
-    }
-    if (weight) {
-      const fontWeight = MAP_FONT_WEIGHT[weight].text;
-      document.documentElement.style.fontWeight = fontWeight;
-    }
+    family && applyFonts(family);
+    weight && applyFontWeight(weight);
   },
 });
 listener.startListening({
+  actionCreator: updateZoom,
+  effect: ({ payload }) => applyZoom(payload),
+});
+listener.startListening({
   actionCreator: updateCustomCSS,
-  effect: ({ payload }) => {
-    const customStyles = document.getElementById(CUSTOM_CSS_DOM_ID);
-    if (customStyles) {
-      customStyles.innerHTML = xssEscape(payload);
-    }
-  },
+  effect: ({ payload }) => applyCustomCSS(payload),
 });
 
 export default {

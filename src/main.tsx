@@ -3,14 +3,21 @@ import './themes';
 import './scss/fonts.scss';
 import './scss/utils.scss';
 
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { Provider } from 'react-redux';
+import { store } from './store';
+import App from './App';
+import DevPanel from './DevPanel';
+
 // [tree-shakable] dynamic import sentry
-const sentryDsn = import.meta.env.VITE_SENTRY_DSN;
-if (import.meta.env.PROD && sentryDsn) {
+const dsn = import.meta.env.VITE_SENTRY_DSN;
+if (import.meta.env.PROD && dsn) {
   Promise.all([import('@sentry/react'), import('@sentry/tracing')]).then(
-    ([Sentry, { Integrations }]) => {
+    ([Sentry, { BrowserTracing }]) => {
       Sentry.init({
-        dsn: `${sentryDsn}`,
-        integrations: [new Integrations.BrowserTracing()],
+        dsn: `${dsn}`,
+        integrations: [new BrowserTracing()],
         sampleRate: 1, // report all errors
         tracesSampleRate: 0.05, // report 5% of traces
       });
@@ -18,17 +25,9 @@ if (import.meta.env.PROD && sentryDsn) {
   );
 }
 
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import { isCEFSharp } from 'ffxiv-overlay-api';
-import { Provider } from 'react-redux';
-import { store } from './store';
-import App from './App';
-import DevPanel from './DevPanel';
-
 let app = <App />;
 // [tree-shakable] development panel
-if (import.meta.env.DEV && !isCEFSharp()) {
+if (import.meta.env.DEV) {
   app = <DevPanel>{app}</DevPanel>;
 }
 // mount the app

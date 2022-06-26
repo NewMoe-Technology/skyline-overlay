@@ -1,0 +1,60 @@
+.s-input-color {
+  display: inline-block;
+  height: $size-form;
+  width: $size-form;
+  position: relative;
+  cursor: pointer;
+
+  &-swatch {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    text-shadow: var(--s);
+
+    .g-icon {
+      font-size: 0.18rem;
+      filter: drop-shadow(var(--icon-shadow));
+      color: var(--icon-color);
+    }
+  }
+
+  &-popover {
+    position: absolute;
+    right: 0;
+    z-index: 999;
+
+    &-bottom {
+      top: $size-form + $padding-md;
+    }
+    &-top {
+      bottom: $size-form + $padding-md;
+    }
+  }
+
+  .react-colorful {
+    width: 1.2rem;
+    height: 1.2rem;
+
+    &__saturation,
+    &__last-control {
+      border-radius: 0;
+    }
+
+    &__hue,
+    &__alpha {
+      height: 0.14rem;
+    }
+
+    &__pointer {
+      width: 0.18rem;
+      height: 0.18rem;
+      cursor: pointer;
+    }
+  }
+}

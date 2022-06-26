@@ -1,10 +1,11 @@
-// Vite
 /// <reference types="vite/client" />
+/// <reference types="vite-plugin-pwa/client" />
+/// <reference types="vite-plugin-svgr/client" />
 
-// SVGR
-declare module '*.svg' {
-  import * as React from 'react';
-  export const ReactComponent: React.FC<
-    React.SVGProps<SVGSVGElement> & { title?: string }
-  >;
-}
+declare type RGBAColor = number[];
+
+declare type DeepPartial<T> = T extends object
+  ? {
+      [P in keyof T]?: DeepPartial<T[P]>;
+    }
+  : T;

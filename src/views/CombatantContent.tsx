@@ -4,10 +4,11 @@ import * as jobIcons from '../assets/jobs';
 import { useAppSelector } from '../hooks';
 import { isLimitBreakData } from '../utils/type';
 import { fmtNumber } from '../utils/formatters';
-import { MAP_DISPLAY_CONTENT } from '../utils/constants';
+import { MAP_DISPLAY_CONTENT } from '../utils/maps';
 
 interface CombatantContentProps {
   player: CombatantData | LimitBreakData;
+  color: string;
   setShowDetail: React.Dispatch<React.SetStateAction<boolean>>;
   lockDetail: boolean;
   setLockDetail: React.Dispatch<React.SetStateAction<boolean>>;
@@ -15,6 +16,7 @@ interface CombatantContentProps {
 
 function CombatantContent({
   player,
+  color,
   setShowDetail,
   lockDetail,
   setLockDetail,
@@ -51,9 +53,10 @@ function CombatantContent({
   return (
     <div
       className='combatant-content'
-      onMouseOver={onDetailEnter}
-      onMouseOut={onDetailLeave}
+      onMouseEnter={onDetailEnter}
+      onMouseLeave={onDetailLeave}
       onClick={onSwitchDetailLock}
+      style={{ backgroundColor: color }}
     >
       {dispMode === 'dual' && (
         <div className='combatant-content-data'>

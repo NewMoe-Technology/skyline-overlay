@@ -3,16 +3,17 @@ import clsx from 'clsx';
 import { SList, SListRow } from '../components';
 import { useAppSelector, useTranslation } from '../hooks';
 import { isLimitBreakData } from '../utils/type';
-import { DisplayContentMapKey } from '../utils/constants';
+import { DisplayContentMapKey } from '../utils/maps';
 import { useCallback, useMemo } from 'react';
 import { fmtNumber } from '../utils/formatters';
 
 interface CombatantDetailProps {
   player: CombatantData | LimitBreakData;
+  color: string;
   lockDetail: boolean;
 }
 
-function CombatantDetail({ player, lockDetail }: CombatantDetailProps) {
+function CombatantDetail({ player, color, lockDetail }: CombatantDetailProps) {
   const t = useTranslation();
   const dispMode = useAppSelector((state) => state.settings.dispMode);
   const dispContent = useAppSelector((state) => state.settings.dispContent);
@@ -118,7 +119,10 @@ function CombatantDetail({ player, lockDetail }: CombatantDetailProps) {
         className={clsx('combatant-detail', {
           'combatant-detail--locked': lockDetail,
         })}
-        style={{ top: topWithTick }}
+        style={{
+          top: topWithTick,
+          backgroundColor: lockDetail ? color : 'var(--color-common)',
+        }}
       >
         <SList items={rowItems} />
       </div>

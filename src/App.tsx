@@ -1,11 +1,11 @@
 import './App.scss';
 import { CSSProperties } from 'react';
 import { CombatantData, LimitBreakData } from 'ffxiv-overlay-api';
-import overlay from './utils/overlay';
 import Combatant from './views/Combatant';
 import Encounter from './views/Encounter';
 import Settings from './views/Settings';
-import { useAppSelector, useMock } from './hooks';
+import SW from './SW';
+import { useAppSelector } from './hooks';
 import { cloneDeep } from './utils/lodash';
 import { fmtMergePet } from './utils/formatters';
 
@@ -23,9 +23,6 @@ function App() {
   const data = useAppSelector((state) => state.api.data);
   const history = useAppSelector((state) => state.api.history);
   const { combatant, limitBreak } = cloneDeep(history.data || data);
-
-  // debug mock data
-  useMock(overlay, true);
 
   let players = combatant;
 
@@ -67,6 +64,9 @@ function App() {
       </div>
       <div className='container' style={opacityStyle}>
         <Encounter />
+      </div>
+      <div className='container'>
+        <SW />
       </div>
       <div className='container'>
         <Settings />

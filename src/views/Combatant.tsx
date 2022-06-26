@@ -1,7 +1,7 @@
 import './Combatant.scss';
 import { useCallback, useState } from 'react';
 import clsx, { ClassArray } from 'clsx';
-import { CombatantData, LimitBreakData } from 'ffxiv-overlay-api';
+import { CombatantData, LimitBreakData, class2job } from 'ffxiv-overlay-api';
 import CombatantName from './CombatantName';
 import CombatantDetail from './CombatantDetail';
 import CombatantBottom from './CombatantBottom';
@@ -9,7 +9,7 @@ import CombatantContent from './CombatantContent';
 import { useAppSelector } from '../hooks';
 import { STicker, STickerProps, STickerClass } from '../components';
 import { isLimitBreakData, isCombatantData } from '../utils/type';
-import { TickerMapKey } from '../utils/constants';
+import { TickerMapKey } from '../utils/maps';
 
 interface CombatantProps {
   player: CombatantData | LimitBreakData;
@@ -26,14 +26,24 @@ function Combatant({ player }: CombatantProps) {
   const ticker = useAppSelector((state) => state.settings.ticker);
   const tickerAlign = useAppSelector((state) => state.settings.tickerAlign);
   const dispMode = useAppSelector((state) => state.settings.dispMode);
+  const themeMode = useAppSelector((state) => state.theme.themeMode);
 
-  // class names related to job
-  if (isLimitBreakData(player)) {
-    classes.push('job-unknown');
-  } else {
-    classes.push({ 'job-self': hlYou && (name === youName || name === 'YOU') }); // highlight
-    classes.push(`job-${player.job || 'unknown'}`); // job
-    classes.push(`jobtype-${player.jobType || 'unknown'}`); // jobtype
+  // player colors
+  let color = 'var(--color-common)'; // fallback common color
+  if (!isLimitBreakData(player)) {
+    const { job, jobType, name } = player;
+    if (hlYou && (name === youName || name === 'YOU')) {
+      color = `var(--color-self)`; // self highlight
+    } else if (themeMode === 'role' && jobType && jobType !== 'unknown') {
+      color = `var(--color-role-${jobType})`; // role colors
+    } else if (themeMode === 'job' && job && job !== 'unknown') {
+      const transedJob = class2job(job);
+      if (transedJob !== job) {
+        color = `var(--color-job-${transedJob})`; // per job colors (base class)
+      } else {
+        color = `var(--color-job-${job})`; // per job colors (transd job)
+      }
+    }
   }
 
   // if dual display mode
@@ -42,7 +52,7 @@ function Combatant({ player }: CombatantProps) {
   }
 
   // detail controls data
-  const needDetail = name !== 'Limit Break' && bottomDisp !== 'none';
+  const needDetail = name !== 'Limit Break';
   const [showDetail, setShowDetail] = useState(false);
   const [lockDetail, setLockDetail] = useState(false);
   if (!needDetail) {
@@ -119,6 +129,7 @@ function Combatant({ player }: CombatantProps) {
 
       <CombatantContent
         player={player}
+        color={color}
         setShowDetail={setShowDetail}
         lockDetail={lockDetail}
         setLockDetail={setLockDetail}
@@ -131,15 +142,19 @@ function Combatant({ player }: CombatantProps) {
         />
       )}
 
-      {needDetail && (
+      {bottomDisp !== 'none' && (
         <CombatantBottom
           player={player}
-          mode={lockDetail || showDetail ? 'none' : bottomDisp}
+          mode={needDetail && (lockDetail || showDetail) ? 'none' : bottomDisp}
         />
       )}
 
       {needDetail && (lockDetail || showDetail) && (
-        <CombatantDetail player={player} lockDetail={lockDetail} />
+        <CombatantDetail
+          player={player}
+          color={color}
+          lockDetail={lockDetail}
+        />
       )}
     </div>
   );

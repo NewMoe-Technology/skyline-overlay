@@ -1,6 +1,9 @@
 {
   "LANG": "English",
 
+  "App Ready to Work Offline": "",
+  "Refresh to New Version Available": "",
+
   "Swings": "",
   "Deaths": "",
   "Damage": "",
@@ -37,13 +40,21 @@
   "Shorten Name": "",
 
   "General": "",
-  "Theme": "",
   "Language": "",
   "UI Scale": "",
   "Opacity": "",
   "Font Family": "",
   "Custom CSS": "",
   "Transfer Settings": "",
+
+  "Theme": "",
+  "Theme Mode": "",
+  "Common": "",
+  "Self Highlighting": "",
+  "Tickers": "",
+  "Roles": "",
+  "Jobs": "",
+  "Theme Customization": "",
 
   "Please enter the new value": "",
   "Copy to clipboard using Ctrl+C": "",
