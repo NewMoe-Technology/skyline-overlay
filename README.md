@@ -51,7 +51,6 @@ When releasing a new version, you can wait for the pop-up notification to confir
 ```
 VITE_BASE_URL="/"     # dist base url (optional)
 VITE_GA_ID=""         # google analytics id
-VITE_SENTRY_DSN=""    # sentry dsn for error tracking & perfromance measuring (optional)
 ```
 
 ## Local Build
@@ -62,6 +61,18 @@ cd skyline-overlay
 pnpm install
 pnpm run build
 ```
+
+## Online Debug
+
+![Debug URL Query](https://raw.githubusercontent.com/dsrkafuu/skyline-overlay/main/assets/debug-1.png)
+
+1. Add `debug=1` to the URL
+2. Open the debug tool of ACT plugin
+3. Reload the overlay in ACT plugin
+4. Do somethings which will trigger the issue
+5. Save the log and upload it like below
+
+![Debug Log Save](https://raw.githubusercontent.com/dsrkafuu/skyline-overlay/main/assets/debug-2.png)
 
 ## Contribute
 
