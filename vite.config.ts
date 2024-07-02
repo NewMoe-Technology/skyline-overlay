@@ -36,10 +36,10 @@ export default defineConfig({
         runtimeCaching: [
           // webfonts
           {
-            urlPattern: /^https?:\/\/.*\/SmartisanHei.woff2.*/i,
+            urlPattern: /^https?:\/\/.*\/.woff2.*/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'SmartisanHei-fonts-cache',
+              cacheName: 'fonts-cache',
               expiration: { maxEntries: 10, maxAgeSeconds: 31536000 }, 
               cacheableResponse: { statuses: [0, 200] },
             },
