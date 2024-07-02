@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.2.6",
+    "@typescript-eslint/eslint-plugin": "^7.15.0",
     "clsx": "^2.1.1",
     "ffxiv-overlay-api": "^4.8.0",
     "immer": "^10.1.1",
