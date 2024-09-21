@@ -12,7 +12,7 @@ const NODE_ENVS: any = process.env || {};
  * https://vitejs.dev/config/
  */
 export default defineConfig({
-  base: process.env.VITE_BASE_URL || '/',
+  base: process.env.VITE_BASE_URL || '/skyline/',
   plugins: [
     svgr({
       svgrOptions: {
@@ -34,33 +34,13 @@ export default defineConfig({
       },
       workbox: {
         runtimeCaching: [
-          // google fonts css
+          // webfonts
           {
-            urlPattern: /^https?:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'googleapis-fonts-cache',
-              expiration: { maxEntries: 10, maxAgeSeconds: 604800 }, // only one css loaded
-              cacheableResponse: { statuses: [0, 200] },
-            },
-          },
-          // google fonts webfonts
-          {
-            urlPattern: /^https?:\/\/fonts\.gstatic\.com\/.*/i,
+            urlPattern: /^https?:\/\/.*\/.woff2.*/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'gstatic-fonts-cache',
-              expiration: { maxEntries: 1000, maxAgeSeconds: 31536000 }, // google's css has 600+ files
-              cacheableResponse: { statuses: [0, 200] },
-            },
-          },
-          // misans webfonts
-          {
-            urlPattern: /^https?:\/\/.*\/fonts\/misans-.*.woff2.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'misans-fonts-cache',
-              expiration: { maxEntries: 10, maxAgeSeconds: 31536000 }, // misans only has 3 files
+              cacheName: 'fonts-cache',
+              expiration: { maxEntries: 10, maxAgeSeconds: 31536000 }, 
               cacheableResponse: { statuses: [0, 200] },
             },
           },
