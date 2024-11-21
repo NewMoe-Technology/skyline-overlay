@@ -1,3 +1,9 @@
-html {
-  font-family: 'SmartisanHei', -apple-system, BlinkMacSystemFont, sans-serif;
+// default
+html,
+html[data-font='default'] {
+  font-family: 'SmartisanHei', sans-serif;
+}
+
+html[data-font='misans'] {
+  font-family: 'MiSans', sans-serif;
 }
