@@ -1,13 +1,14 @@
-// @ts-nocheck Cannot find module virtual:pwa-register/react when `tsc`
 import './SW.scss';
 import { useCallback } from 'react';
+import clsx from 'clsx';
 import { useRegisterSW } from 'virtual:pwa-register/react';
-import { useTranslation } from './hooks';
+import { useAppSelector, useTranslation } from './hooks';
 import { logError, logInfo } from './utils/loggers';
 import { IClose, IRefresh } from './assets/icons';
 
 function SW() {
   const t = useTranslation();
+  const layoutMode = useAppSelector((state) => state.settings.layoutMode);
 
   const {
     offlineReady: [offlineReady, setOfflineReady],
@@ -28,7 +29,12 @@ function SW() {
   }, [setNeedRefresh, setOfflineReady]);
 
   return offlineReady || needRefresh ? (
-    <div className='sw'>
+    <div
+      className={clsx({
+        sw: true,
+        'sw-reverse': layoutMode === 'reverse',
+      })}
+    >
       <div className='sw-text'>
         {offlineReady
           ? t('App Ready to Work Offline')
