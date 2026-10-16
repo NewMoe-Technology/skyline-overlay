@@ -1,8 +1,10 @@
-import { CombatantData, LimitBreakData } from 'ffxiv-overlay-api';
-import { useAppSelector } from '../hooks';
-import { BottomDispMapKey } from '../utils/maps';
-import { fmtNumber } from '../utils/formatters';
-import { isCombatantData } from '../utils/type';
+import { memo } from 'react';
+
+import { CombatantData, LimitBreakData } from '@/api';
+import { useAppSelector } from '@/hooks';
+import { fmtNumber } from '@/utils/formatters';
+import { BottomDispMapKey } from '@/utils/maps';
+import { isCombatantData } from '@/utils/type';
 
 interface CombatantBottomProps {
   player: CombatantData | LimitBreakData;
@@ -11,25 +13,16 @@ interface CombatantBottomProps {
 
 function CombatantBottom({ player, mode = 'none' }: CombatantBottomProps) {
   const shortNumber = useAppSelector((state) => state.settings.shortNumber);
-  const bigNumberMode = useAppSelector((state) => state.settings.bigNumberMode);
 
   if (mode === 'maxhit') {
-    const maxHitDamage = isCombatantData(player)
-      ? player.maxHitDamage
-      : player.damage;
-    const maxHealDamage = isCombatantData(player)
-      ? player.maxHealDamage
-      : player.healed;
+    const maxHitDamage = isCombatantData(player) ? player.maxHitDamage : player.damage;
+    const maxHealDamage = isCombatantData(player) ? player.maxHealDamage : player.healed;
 
     if (maxHitDamage) {
       return (
         <div className='combatant-bottom combatant-bottom-maxhit'>
           <span>&nbsp;{player.maxHit}&nbsp;</span>
-          {maxHitDamage > 0 && (
-            <span>
-              -&nbsp;{fmtNumber(maxHitDamage, shortNumber, bigNumberMode)}&nbsp;
-            </span>
-          )}
+          {maxHitDamage > 0 && <span>-&nbsp;{fmtNumber(maxHitDamage, shortNumber)}&nbsp;</span>}
         </div>
       );
     } else if (maxHealDamage) {
@@ -38,13 +31,22 @@ function CombatantBottom({ player, mode = 'none' }: CombatantBottomProps) {
           <span>&nbsp;{player.maxHeal}&nbsp;</span>
           {maxHealDamage > 0 && (
             <span>
-              -&nbsp;{fmtNumber(maxHealDamage, shortNumber, bigNumberMode)}
+              -&nbsp;{fmtNumber(maxHealDamage, shortNumber)}
               &nbsp;
             </span>
           )}
         </div>
       );
     }
+  } else if (mode === 'last60DPS' && isCombatantData(player)) {
+    const { last60DPS } = player;
+
+    return (
+      <div className='combatant-bottom combatant-bottom-dps'>
+        &nbsp;<span className='g-number'>{last60DPS}</span>
+        &nbsp;<span className='g-counter'>mDPS</span>&nbsp;
+      </div>
+    );
   } else if (mode === 'cdpcts' && isCombatantData(player)) {
     const { directHitPct, critHitPct, directCritHitPct } = player;
 
@@ -65,9 +67,18 @@ function CombatantBottom({ player, mode = 'none' }: CombatantBottomProps) {
         &nbsp;<span>{directCritHitPct}CD</span>&nbsp;
       </div>
     );
+  } else if (mode === 'damagePctDeaths' && isCombatantData(player)) {
+    const { damagePct, deaths } = player;
+
+    return (
+      <div className='combatant-bottom combatant-bottom-cdpcts'>
+        &nbsp;<span>{damagePct || '0%'}DMG</span>
+        &nbsp;<span>{deaths}DT</span>&nbsp;
+      </div>
+    );
   }
 
   return <div className='combatant-bottom'></div>;
 }
 
-export default CombatantBottom;
+export default memo(CombatantBottom);

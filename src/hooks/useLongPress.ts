@@ -2,7 +2,6 @@
  * https://github.com/streamich/react-use/blob/master/src/useLongPress.ts
  * Latest commit a27f09f on 29 Jan 2021 (Unlicense License)
  */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import { useCallback, useRef } from 'react';
 
@@ -11,22 +10,16 @@ function on<T extends Window | Document | HTMLElement | EventTarget>(
   ...args: Parameters<T['addEventListener']> | [string, Function | null, ...any]
 ): void {
   if (obj && obj.addEventListener) {
-    obj.addEventListener(
-      ...(args as Parameters<HTMLElement['addEventListener']>)
-    );
+    obj.addEventListener(...(args as Parameters<HTMLElement['addEventListener']>));
   }
 }
 
 function off<T extends Window | Document | HTMLElement | EventTarget>(
   obj: T | null,
-  ...args:
-    | Parameters<T['removeEventListener']>
-    | [string, Function | null, ...any]
+  ...args: Parameters<T['removeEventListener']> | [string, Function | null, ...any]
 ): void {
   if (obj && obj.removeEventListener) {
-    obj.removeEventListener(
-      ...(args as Parameters<HTMLElement['removeEventListener']>)
-    );
+    obj.removeEventListener(...(args as Parameters<HTMLElement['removeEventListener']>));
   }
 }
 

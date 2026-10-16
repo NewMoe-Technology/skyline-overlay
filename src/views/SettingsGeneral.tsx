@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
-import { SInput, SInputNumber, SSelect, SSwitch } from '../components';
-import { useAppDispatch, useAppSelector, useTranslation } from '../hooks';
+
+import { SInput, SInputNumber, SSelect, SSwitch } from '@/components';
+import { useAppDispatch, useAppSelector, useTranslation } from '@/hooks';
 import {
   updateCustomCSS,
   updateFonts,
@@ -9,13 +10,9 @@ import {
   updateMock,
   updateOpacity,
   updateZoom,
-} from '../store/slices/settings';
-import {
-  MAP_LANG,
-  MAP_FONT_FAMILY,
-  MAP_FONT_WEIGHT,
-  MAP_LAYOUT_MODE,
-} from '../utils/maps';
+} from '@/store/slices/settings';
+import { MAP_LANG, MAP_FONT_FAMILY, MAP_LAYOUT_MODE } from '@/utils/maps';
+
 import SettingsTransfer from './SettingsTransfer';
 
 function SettingsGeneral() {
@@ -29,22 +26,28 @@ function SettingsGeneral() {
   const fonts = useAppSelector((state) => state.settings.fonts);
   const customCSS = useAppSelector((state) => state.settings.customCSS);
 
+  const availableWeights = useMemo(() => {
+    const family = fonts.family;
+    const curFamily = MAP_FONT_FAMILY[family];
+    const weightRange = curFamily ? curFamily.weights : [400, 400];
+    const weights: { [key: string]: { text: string; parent: string } } = {};
+    for (let w = weightRange[0]; w <= weightRange[1]; w += 100) {
+      weights[`${w}`] = { text: `${w}`, parent: family };
+    }
+    return weights;
+  }, [fonts.family]);
+  const weightIsValid = fonts.weight in availableWeights;
+
   const items = useMemo(
     () => [
       {
         title: t('Mock Data'),
-        render: () => (
-          <SSwitch value={mock} onChange={(v) => dispatch(updateMock(v))} />
-        ),
+        render: () => <SSwitch value={mock} onChange={(v) => dispatch(updateMock(v))} />,
       },
       {
         title: t('Language'),
         render: () => (
-          <SSelect
-            value={lang}
-            onChange={(v) => dispatch(updateLang(v))}
-            map={MAP_LANG}
-          />
+          <SSelect value={lang} onChange={(v) => dispatch(updateLang(v))} map={MAP_LANG} />
         ),
       },
       {
@@ -96,10 +99,11 @@ function SettingsGeneral() {
             />
             <SSelect
               className='settings-font-weight'
-              value={fonts.weight}
-              onChange={(weight) => dispatch(updateFonts({ weight }))}
-              map={MAP_FONT_WEIGHT}
+              value={weightIsValid ? `${fonts.weight}` : '400'}
+              onChange={(weight) => dispatch(updateFonts({ weight: +weight }))}
+              map={availableWeights}
               position='top'
+              r3mode
             />
           </>
         ),
@@ -120,7 +124,20 @@ function SettingsGeneral() {
         observe: false,
       },
     ],
-    [t, dispatch, mock, lang, zoom, opacity, fonts, customCSS, layoutMode]
+    [
+      t,
+      mock,
+      dispatch,
+      lang,
+      zoom,
+      opacity,
+      layoutMode,
+      fonts.family,
+      fonts.weight,
+      weightIsValid,
+      availableWeights,
+      customCSS,
+    ]
   );
 
   return (

@@ -1,6 +1,6 @@
 import './ikegami.scss';
-import { Colors } from './support/colors';
 import { DSRKafuU } from './support/authors';
+import { Colors } from './support/colors';
 import { ThemeItem } from './support/theme';
 
 const commonColors = {
@@ -42,6 +42,7 @@ const jobColors: Colors = {
     sam: [255, 202, 40],
     rpr: [255, 160, 0],
     vpr: [216, 116, 21],
+    bst: [189, 15, 73],
     brd: [158, 157, 36],
     mch: [0, 151, 167],
     dnc: [244, 143, 177],

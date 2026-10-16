@@ -1,6 +1,6 @@
 import './default.scss';
-import { Colors } from './support/colors';
 import { DSRKafuU } from './support/authors';
+import { Colors } from './support/colors';
 import { ThemeItem } from './support/theme';
 
 const commonColors = {
@@ -42,6 +42,7 @@ const jobColors: Colors = {
     sam: [228, 109, 4, 0.4],
     rpr: [150, 90, 144, 0.4],
     vpr: [216, 67, 21, 0.4],
+    bst: [232, 107, 121, 0.5],
     brd: [145, 186, 94, 0.4],
     mch: [110, 225, 214, 0.4],
     dnc: [226, 176, 175, 0.4],

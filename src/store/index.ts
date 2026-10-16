@@ -1,4 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
+
 import api from './slices/api';
 import settings from './slices/settings';
 import theme from './slices/theme';

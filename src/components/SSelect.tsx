@@ -1,8 +1,9 @@
 import './SSelect.scss';
-import { useState, useRef, useCallback } from 'react';
 import clsx from 'clsx';
-import { IChevronDown, IChevronUp } from '../assets/icons';
-import { useOutsideClick } from '../hooks';
+import { useState, useRef, useCallback } from 'react';
+
+import { IChevronDown, IChevronUp } from '@/assets/icons';
+import { useOutsideClick } from '@/hooks';
 
 export interface SSelectMap {
   [key: string]: {
@@ -17,6 +18,7 @@ interface SSelectProps<TMap extends SSelectMap> {
   onChange: (value: keyof TMap, data?: unknown) => void;
   map: TMap;
   position?: 'top' | 'bottom';
+  r3mode?: boolean;
   disabled?: boolean;
   className?: string;
 }
@@ -26,6 +28,7 @@ function SSelect<TMap extends SSelectMap>({
   onChange,
   map,
   position = 'bottom',
+  r3mode = false,
   disabled,
   className,
 }: SSelectProps<TMap>) {
@@ -45,14 +48,7 @@ function SSelect<TMap extends SSelectMap>({
   });
 
   return (
-    <div
-      className={clsx(
-        's-select',
-        { 's-select--disabled': disabled },
-        className
-      )}
-      ref={clickRef}
-    >
+    <div className={clsx('s-select', { 's-select--disabled': disabled }, className)} ref={clickRef}>
       <div
         className={clsx('s-select-value', { 's-select-value--active': active })}
         onClick={() => setActive((val) => !disabled && !val)}
@@ -62,7 +58,9 @@ function SSelect<TMap extends SSelectMap>({
       </div>
       {active && (
         <div
-          className={clsx('s-select-options', `s-select-options-${position}`)}
+          className={clsx('s-select-options', `s-select-options-${position}`, {
+            's-select-options-r3mode': r3mode,
+          })}
         >
           {Object.keys(map).map((key) => (
             <div

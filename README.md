@@ -10,13 +10,12 @@
 ![](https://img.shields.io/github/package-json/v/dsrkafuu/skyline-overlay)
 ![](https://img.shields.io/badge/ffxiv-dawntrail-orange)
 [![](https://img.shields.io/github/license/dsrkafuu/skyline-overlay)](https://github.com/dsrkafuu/skyline-overlay/blob/main/LICENSE)
-[![](https://img.shields.io/lgtm/grade/javascript/github/dsrkafuu/skyline-overlay)](https://lgtm.com/projects/g/dsrkafuu/skyline-overlay/context:javascript)
 
 Features: Basic overlay, extended details, customizable display/data settings, battle history, custom colors, sw cache and more. The project is based on React 18, and the dedicated [ffxiv-overlay-api](https://github.com/dsrkafuu/ffxiv-overlay-api).
 
-<img align="center" src="https://raw.githubusercontent.com/dsrkafuu/skyline-overlay/main/assets/preview-en-v37.jpg" alt="Skyline Preview" />
+<img align="center" src="https://raw.githubusercontent.com/dsrkafuu/skyline-overlay/refs/heads/main/assets/preview-zh-v4.png" alt="Skyline Preview" />
 
-<img align="center" src="https://raw.githubusercontent.com/dsrkafuu/skyline-overlay/main/assets/preview-zh-v37.jpg" alt="Skyline Preview CN" />
+<img align="center" src="https://raw.githubusercontent.com/dsrkafuu/skyline-overlay/refs/heads/main/assets/preview2-zh-v4.png" alt="Skyline Preview Duo" />
 
 ## Overlay Links
 
@@ -38,11 +37,11 @@ You can use [CSSNANO](https://cssnano.co/playground/) to minify your CSS into si
 
 ## Browsers Support
 
-Supports major browser versions released at 2020 or `ES2020`.
+Supports major browser versions released at `baseline-widely-available`.
 
-- Chrome: >=87
-- Firefox: >=78
-- Safari: >=14
+- Chrome: >=111
+- Firefox: >=114
+- Safari: >=16.4
 
 ## Cache Rules
 
@@ -59,11 +58,13 @@ VITE_GA_ID=""         # google analytics id
 
 ## Local Build
 
+Install [Bun](https://bun.sh/) before running the following commands:
+
 ```bash
 git clone https://github.com/dsrkafuu/skyline-overlay.git
 cd skyline-overlay
-pnpm install
-pnpm run build
+bun install
+bun run build
 ```
 
 ## Online Debug
@@ -78,14 +79,7 @@ pnpm run build
 
 ![Debug Log Save](https://raw.githubusercontent.com/dsrkafuu/skyline-overlay/main/assets/debug-2.png)
 
-## Contribute
-
-```bash
-git clone https://github.com/dsrkafuu/skyline-overlay.git
-cd skyline-overlay
-pnpm install
-pnpm run dev
-```
+Theses also a `rawdata=1` query to get the raw data from ngld.
 
 ### Add Translations
 
@@ -135,10 +129,17 @@ These variables will now be accessible within your `.scss` file as `var(--color-
 - ffxiv-overlay-api: <https://github.com/dsrkafuu/ffxiv-overlay-api>
 - Job Icons: <https://github.com/xivapi/classjob-icons/tree/master/svg>
 - jsDelivr: <https://www.jsdelivr.com>
-- MiSans: <https://home.miui.com>
 
 ## LICENSE
 
 Released under `Apache License 2.0`, for more information read the [LICENSE](https://github.com/dsrkafuu/skyline-overlay/blob/main/LICENSE).
 
 **Copyright © 2020-present DSRKafuU (<https://dsrkafuu.net>)**
+
+## CHANGELOG
+
+Added Beastmaster (BST) support, including job recognition, melee DPS classification, icon rendering, and theme colors.
+
+## 更新日志
+
+新增驯兽师（BST）支持，包括职业识别、近战 DPS 分类、图标显示和主题颜色。
