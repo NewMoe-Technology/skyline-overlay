@@ -1,8 +1,8 @@
 import './SW.scss';
 import clsx from 'clsx';
 import { useCallback } from 'react';
-import clsx from 'clsx';
 import { useRegisterSW } from 'virtual:pwa-register/react';
+
 import { IClose, IRefresh } from './assets/icons';
 import { useAppSelector, useTranslation } from './hooks';
 import { logError, logInfo } from './utils/loggers';

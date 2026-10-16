@@ -9,6 +9,11 @@ import svgr from 'vite-plugin-svgr';
  */
 export default defineConfig({
   base: process.env.VITE_BASE_URL || '/skyline/',
+  resolve: {
+    alias: {
+      '@/': '/src/',
+    },
+  },
   plugins: [
     svgr({
       svgrOptions: {
